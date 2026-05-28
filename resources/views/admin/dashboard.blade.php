@@ -1,16 +1,24 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin</title>
-</head>
-<body>
-    <h1>Selamat Datang, Admin! 👨‍💼</h1>
-    <p>Ini adalah halaman dashboard admin.</p>
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button type="submit">Logout</button>
-    </form>
-</body>
-</html>
+<x-app-layout>
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <h1 class="text-3xl font-bold text-gray-800 mb-4">
+                    Dashboard Admin 👨‍💼
+                </h1>
+
+                <p class="text-gray-600 mb-2">
+                    Selamat datang,
+                    <span class="font-semibold">
+                        {{ Auth::user()->name }}
+                    </span>
+                </p>
+
+                <p class="text-gray-500">
+                    Anda login sebagai Admin.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</x-app-layout>
