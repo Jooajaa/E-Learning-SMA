@@ -100,6 +100,9 @@ Route::middleware(['auth', 'role:siswa'])
 
         // Evaluasi Ahlil - Siswa
         Route::get('/kuis', [SiswaKuisController::class, 'index'])->name('kuis.index');
+        Route::get('/kuis/{kuis}/kerjakan', [SiswaKuisController::class, 'kerjakan'])->name('kuis.kerjakan');
+        Route::post('/kuis/{kuis}/submit', [SiswaKuisController::class, 'submit'])->name('kuis.submit');
+        
         Route::get('/nilai', [SiswaNilaiController::class, 'index'])->name('nilai.index');
         Route::get('/absensi', [SiswaAbsensiController::class, 'index'])->name('absensi.index');
         Route::get('/jadwal', [SiswaJadwalController::class, 'index'])->name('jadwal.index');

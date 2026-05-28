@@ -8,8 +8,20 @@
                 </h1>
 
                 <p class="text-gray-600 mb-6">
-                    Halaman ini digunakan siswa untuk melihat daftar kuis yang tersedia.
+                    Halaman ini digunakan siswa untuk melihat dan mengerjakan kuis.
                 </p>
+
+                @if (session('error'))
+                    <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if (session('success'))
+                    <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+                        {{ session('success') }}
+                    </div>
+                @endif
 
                 <div class="overflow-x-auto">
                     <table class="w-full border border-gray-200">
@@ -21,22 +33,53 @@
                                 <th class="border px-4 py-2 text-left">Waktu Mulai</th>
                                 <th class="border px-4 py-2 text-left">Waktu Selesai</th>
                                 <th class="border px-4 py-2 text-left">Jumlah Soal</th>
+                                <th class="border px-4 py-2 text-left">Aksi</th>
                             </tr>
                         </thead>
 
                         <tbody>
                             @forelse ($kuis as $item)
                                 <tr>
-                                    <td class="border px-4 py-2">{{ $loop->iteration }}</td>
-                                    <td class="border px-4 py-2 font-semibold">{{ $item->judul }}</td>
-                                    <td class="border px-4 py-2">{{ $item->deskripsi }}</td>
-                                    <td class="border px-4 py-2">{{ $item->waktu_mulai }}</td>
-                                    <td class="border px-4 py-2">{{ $item->waktu_selesai }}</td>
-                                    <td class="border px-4 py-2">{{ $item->soal->count() }} soal</td>
+                                    <td class="border px-4 py-2">
+                                        {{ $loop->iteration }}
+                                    </td>
+
+                                    <td class="border px-4 py-2 font-semibold">
+                                        {{ $item->judul }}
+                                    </td>
+
+                                    <td class="border px-4 py-2">
+                                        {{ $item->deskripsi }}
+                                    </td>
+
+                                    <td class="border px-4 py-2">
+                                        {{ $item->waktu_mulai }}
+                                    </td>
+
+                                    <td class="border px-4 py-2">
+                                        {{ $item->waktu_selesai }}
+                                    </td>
+
+                                    <td class="border px-4 py-2">
+                                        {{ $item->soal->count() }} soal
+                                    </td>
+
+                                    <td class="border px-4 py-2">
+                                        @if ($item->soal->count() > 0)
+                                            <a href="{{ route('siswa.kuis.kerjakan', $item->id) }}"
+                                                class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                                                Kerjakan
+                                            </a>
+                                        @else
+                                            <span class="inline-block bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm">
+                                                Belum Ada Soal
+                                            </span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="border px-4 py-4 text-center text-gray-500">
+                                    <td colspan="7" class="border px-4 py-4 text-center text-gray-500">
                                         Belum ada data kuis.
                                     </td>
                                 </tr>
