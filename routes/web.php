@@ -1,20 +1,27 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Guru\DashboardController as GuruDashboard;
+use App\Http\Controllers\Siswa\DashboardController as SiswaDashboard;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+require __DIR__.'/auth.php';
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// Admin Routes
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
 });
 
-require __DIR__.'/auth.php';
+// Guru Routes
+Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(function () {
+    Route::get('/dashboard', [GuruDashboard::class, 'index'])->name('dashboard');
+});
+
+// Siswa Routes
+Route::middleware(['auth', 'role:siswa'])->prefix('siswa')->name('siswa.')->group(function () {
+    Route::get('/dashboard', [SiswaDashboard::class, 'index'])->name('dashboard');
+});
