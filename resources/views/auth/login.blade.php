@@ -1,47 +1,80 @@
 <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="min-h-screen bg-gradient-to-br from-blue-900 via-blue-700 to-indigo-900 flex items-center justify-center px-4">
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+        <div class="w-full max-w-5xl bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <div class="hidden md:flex flex-col justify-center p-10 text-white">
+                <div class="text-6xl mb-6">🎓</div>
+                <h1 class="text-4xl font-bold mb-4">LMS SMA</h1>
+                <p class="text-blue-100 text-lg">
+                    Platform pembelajaran digital untuk admin, guru, dan siswa.
+                </p>
+
+                <div class="mt-8 space-y-3 text-sm text-blue-100">
+                    <p>✅ Dashboard sesuai role</p>
+                    <p>✅ Materi dan tugas online</p>
+                    <p>✅ Sistem pembelajaran modern</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 md:p-10 rounded-3xl md:rounded-l-none">
+                <div class="text-center mb-8">
+                    <div class="mx-auto mb-4 w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-3xl shadow-lg">
+                        📚
+                    </div>
+
+                    <h2 class="text-3xl font-bold text-gray-800">
+                        Selamat Datang
+                    </h2>
+
+                    <p class="text-gray-500 mt-2">
+                        Silakan login ke akun LMS SMA
+                    </p>
+                </div>
+
+                <x-auth-session-status class="mb-4" :status="session('status')" />
+
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                            Email
+                        </label>
+                        <input type="email" name="email" required autofocus
+                            placeholder="Masukkan email"
+                            class="w-full rounded-xl border-gray-300 px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div class="mt-5">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                            Password
+                        </label>
+                        <input type="password" name="password" required
+                            placeholder="Masukkan password"
+                            class="w-full rounded-xl border-gray-300 px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div class="mt-5 flex items-center justify-between">
+                        <label class="flex items-center text-sm text-gray-600">
+                            <input type="checkbox" name="remember"
+                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2">Remember me</span>
+                        </label>
+
+                        <a href="{{ route('password.request') }}"
+                            class="text-sm font-medium text-blue-600 hover:text-blue-800">
+                            Lupa password?
+                        </a>
+                    </div>
+
+                    <button type="submit"
+                        class="mt-7 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold shadow-lg transition duration-300">
+                        LOGIN
+                    </button>
+                </form>
+            </div>
+
         </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
+    </div>
 </x-guest-layout>
