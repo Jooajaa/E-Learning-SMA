@@ -1,10 +1,25 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ProfileController;
+
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+
 use App\Http\Controllers\Guru\DashboardController as GuruDashboard;
+use App\Http\Controllers\Guru\KuisController as GuruKuisController;
+use App\Http\Controllers\Guru\NilaiController as GuruNilaiController;
+use App\Http\Controllers\Guru\AbsensiController as GuruAbsensiController;
+use App\Http\Controllers\Guru\JadwalController as GuruJadwalController;
+use App\Http\Controllers\Guru\SoalKuisController as GuruSoalKuisController;
+
 use App\Http\Controllers\Siswa\DashboardController as SiswaDashboard;
+use App\Http\Controllers\Siswa\KuisController as SiswaKuisController;
+use App\Http\Controllers\Siswa\NilaiController as SiswaNilaiController;
+use App\Http\Controllers\Siswa\AbsensiController as SiswaAbsensiController;
+use App\Http\Controllers\Siswa\JadwalController as SiswaJadwalController;
+
+use App\Http\Controllers\KalenderAkademikController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -12,13 +27,9 @@ Route::get('/', function () {
 
 require __DIR__.'/auth.php';
 
-// =====================
-// ROUTE JOJO - AUTH & DASHBOARD
-// =====================
-
 // Redirect dashboard sesuai role
 Route::get('/dashboard', function () {
-    $user = auth()->user();
+    $user = Auth::user();
 
     if ($user->hasRole('admin')) {
         return redirect()->route('admin.dashboard');
@@ -56,6 +67,17 @@ Route::middleware(['auth', 'role:guru'])
     ->name('guru.')
     ->group(function () {
         Route::get('/dashboard', [GuruDashboard::class, 'index'])->name('dashboard');
+
+        Route::get('/kuis', [GuruKuisController::class, 'index'])->name('kuis.index');
+        Route::get('/kuis/create', [GuruKuisController::class, 'create'])->name('kuis.create');
+        Route::post('/kuis', [GuruKuisController::class, 'store'])->name('kuis.store');
+
+        Route::get('/kuis/{kuis}/soal/create', [GuruSoalKuisController::class, 'create'])->name('kuis.soal.create');
+        Route::post('/kuis/{kuis}/soal', [GuruSoalKuisController::class, 'store'])->name('kuis.soal.store');
+
+        Route::get('/nilai', [GuruNilaiController::class, 'index'])->name('nilai.index');
+        Route::get('/absensi', [GuruAbsensiController::class, 'index'])->name('absensi.index');
+        Route::get('/jadwal', [GuruJadwalController::class, 'index'])->name('jadwal.index');
     });
 
 // Siswa Routes
@@ -64,4 +86,17 @@ Route::middleware(['auth', 'role:siswa'])
     ->name('siswa.')
     ->group(function () {
         Route::get('/dashboard', [SiswaDashboard::class, 'index'])->name('dashboard');
+
+        Route::get('/kuis', [SiswaKuisController::class, 'index'])->name('kuis.index');
+        Route::get('/kuis/{kuis}/kerjakan', [SiswaKuisController::class, 'kerjakan'])->name('kuis.kerjakan');
+        Route::post('/kuis/{kuis}/submit', [SiswaKuisController::class, 'submit'])->name('kuis.submit');
+
+        Route::get('/nilai', [SiswaNilaiController::class, 'index'])->name('nilai.index');
+        Route::get('/absensi', [SiswaAbsensiController::class, 'index'])->name('absensi.index');
+        Route::get('/jadwal', [SiswaJadwalController::class, 'index'])->name('jadwal.index');
     });
+
+// Kalender Akademik
+Route::middleware(['auth'])->group(function () {
+    Route::get('/kalender', [KalenderAkademikController::class, 'index'])->name('kalender.index');
+});
