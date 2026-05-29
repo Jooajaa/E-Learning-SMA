@@ -15,7 +15,11 @@ class KuisController extends Controller
     {
         $kuis = Kuis::with('soal')->latest()->get();
 
-        return view('siswa.kuis.index', compact('kuis'));
+        $kuisSudahDikerjakan = Nilai::where('siswa_id', Auth::id())
+            ->pluck('kuis_id')
+            ->toArray();
+
+        return view('siswa.kuis.index', compact('kuis', 'kuisSudahDikerjakan'));
     }
 
     public function kerjakan(Kuis $kuis)
