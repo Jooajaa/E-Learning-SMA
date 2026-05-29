@@ -1,50 +1,58 @@
 <x-app-layout>
-    <div class="py-6">
+    <div class="py-6 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <div class="bg-white shadow-sm rounded-lg p-6">
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">
+            <div class="mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">
                     Absensi Guru
                 </h1>
-
-                <p class="text-gray-600 mb-6">
-                    Halaman ini digunakan guru untuk membuat dan melihat rekap absensi siswa.
+                <p class="text-gray-500 mt-1">
+                    Lihat rekap kehadiran siswa berdasarkan data absensi.
                 </p>
+            </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full border border-gray-200">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="border px-4 py-2 text-left">No</th>
-                                <th class="border px-4 py-2 text-left">Siswa ID</th>
-                                <th class="border px-4 py-2 text-left">Guru ID</th>
-                                <th class="border px-4 py-2 text-left">Tanggal</th>
-                                <th class="border px-4 py-2 text-left">Status</th>
-                                <th class="border px-4 py-2 text-left">Keterangan</th>
-                            </tr>
-                        </thead>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse ($absensi as $item)
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-bold text-gray-800">
+                                Siswa ID: {{ $item->siswa_id }}
+                            </h2>
 
-                        <tbody>
-                            @forelse ($absensi as $item)
-                                <tr>
-                                    <td class="border px-4 py-2">{{ $loop->iteration }}</td>
-                                    <td class="border px-4 py-2">{{ $item->siswa_id }}</td>
-                                    <td class="border px-4 py-2">{{ $item->guru_id }}</td>
-                                    <td class="border px-4 py-2">{{ $item->tanggal }}</td>
-                                    <td class="border px-4 py-2 font-semibold capitalize">{{ $item->status }}</td>
-                                    <td class="border px-4 py-2">{{ $item->keterangan }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="border px-4 py-4 text-center text-gray-500">
-                                        Belum ada data absensi.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                            <span class="px-3 py-1 rounded-full text-sm font-bold capitalize
+                                @if ($item->status == 'hadir') bg-green-100 text-green-700
+                                @elseif ($item->status == 'izin') bg-blue-100 text-blue-700
+                                @elseif ($item->status == 'sakit') bg-yellow-100 text-yellow-700
+                                @else bg-red-100 text-red-700
+                                @endif">
+                                {{ $item->status }}
+                            </span>
+                        </div>
 
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <p>
+                                <span class="font-semibold">Guru ID:</span>
+                                {{ $item->guru_id ?? '-' }}
+                            </p>
+
+                            <p>
+                                <span class="font-semibold">Tanggal:</span>
+                                {{ $item->tanggal }}
+                            </p>
+
+                            <p>
+                                <span class="font-semibold">Keterangan:</span>
+                                {{ $item->keterangan ?? 'Tidak ada keterangan.' }}
+                            </p>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                        <p class="text-gray-500">
+                            Belum ada data absensi.
+                        </p>
+                    </div>
+                @endforelse
             </div>
 
         </div>

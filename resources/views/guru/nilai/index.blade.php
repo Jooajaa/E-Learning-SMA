@@ -1,50 +1,59 @@
 <x-app-layout>
-    <div class="py-6">
+    <div class="py-6 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <div class="bg-white shadow-sm rounded-lg p-6">
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">
+            <div class="mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">
                     Nilai Guru
                 </h1>
-
-                <p class="text-gray-600 mb-6">
-                    Halaman ini digunakan guru untuk melihat dan mengelola nilai siswa.
+                <p class="text-gray-500 mt-1">
+                    Lihat dan kelola data nilai siswa dari kuis dan tugas.
                 </p>
+            </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full border border-gray-200">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="border px-4 py-2 text-left">No</th>
-                                <th class="border px-4 py-2 text-left">Siswa ID</th>
-                                <th class="border px-4 py-2 text-left">Guru ID</th>
-                                <th class="border px-4 py-2 text-left">Kuis ID</th>
-                                <th class="border px-4 py-2 text-left">Nilai</th>
-                                <th class="border px-4 py-2 text-left">Keterangan</th>
-                            </tr>
-                        </thead>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse ($nilai as $item)
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-bold text-gray-800">
+                                Siswa ID: {{ $item->siswa_id }}
+                            </h2>
 
-                        <tbody>
-                            @forelse ($nilai as $item)
-                                <tr>
-                                    <td class="border px-4 py-2">{{ $loop->iteration }}</td>
-                                    <td class="border px-4 py-2">{{ $item->siswa_id }}</td>
-                                    <td class="border px-4 py-2">{{ $item->guru_id }}</td>
-                                    <td class="border px-4 py-2">{{ $item->kuis_id }}</td>
-                                    <td class="border px-4 py-2 font-bold">{{ $item->nilai }}</td>
-                                    <td class="border px-4 py-2">{{ $item->keterangan }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="border px-4 py-4 text-center text-gray-500">
-                                        Belum ada data nilai.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                            <span class="px-3 py-1 rounded-full text-sm font-bold
+                                {{ $item->nilai >= 75 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                {{ $item->nilai }}
+                            </span>
+                        </div>
 
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <p>
+                                <span class="font-semibold">Guru ID:</span>
+                                {{ $item->guru_id ?? '-' }}
+                            </p>
+
+                            <p>
+                                <span class="font-semibold">Kuis ID:</span>
+                                {{ $item->kuis_id ?? '-' }}
+                            </p>
+
+                            <p>
+                                <span class="font-semibold">Keterangan:</span>
+                                {{ $item->keterangan ?? '-' }}
+                            </p>
+
+                            <p>
+                                <span class="font-semibold">Tanggal:</span>
+                                {{ $item->created_at ? $item->created_at->format('d-m-Y H:i') : '-' }}
+                            </p>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                        <p class="text-gray-500">
+                            Belum ada data nilai.
+                        </p>
+                    </div>
+                @endforelse
             </div>
 
         </div>
