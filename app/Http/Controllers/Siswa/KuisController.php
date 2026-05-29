@@ -20,6 +20,16 @@ class KuisController extends Controller
 
     public function kerjakan(Kuis $kuis)
     {
+        $sudahMengerjakan = Nilai::where('siswa_id', Auth::id())
+            ->where('kuis_id', $kuis->id)
+            ->exists();
+
+        if ($sudahMengerjakan) {
+            return redirect()
+                ->route('siswa.kuis.index')
+                ->with('error', 'Kamu sudah mengerjakan kuis ini.');
+        }
+
         $kuis->load('soal');
 
         return view('siswa.kuis.kerjakan', compact('kuis'));
@@ -27,6 +37,16 @@ class KuisController extends Controller
 
     public function submit(Request $request, Kuis $kuis)
     {
+        $sudahMengerjakan = Nilai::where('siswa_id', Auth::id())
+            ->where('kuis_id', $kuis->id)
+            ->exists();
+
+        if ($sudahMengerjakan) {
+            return redirect()
+                ->route('siswa.kuis.index')
+                ->with('error', 'Kamu sudah mengerjakan kuis ini.');
+        }
+
         $kuis->load('soal');
 
         $benar = 0;
