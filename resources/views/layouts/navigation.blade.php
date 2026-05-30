@@ -12,12 +12,65 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+
+                    <x-nav-link
+                        :href="route('dashboard')"
+                        :active="request()->routeIs('dashboard')">
+                        Dashboard
                     </x-nav-link>
+
+                    @auth
+
+                        {{-- MENU SISWA --}}
+                        @if(auth()->user()->hasrole ('siswa'))
+
+                            <x-nav-link
+                                :href="route('siswa.materi.index')"
+                                :active="request()->routeIs('siswa.materi.*')">
+                                Materi
+                            </x-nav-link>
+
+                            <x-nav-link
+                                :href="route('siswa.tugas.index')"
+                                :active="request()->routeIs('siswa.tugas.*')">
+                                Tugas
+                            </x-nav-link>
+
+                            <x-nav-link
+                                :href="route('siswa.pengumpulan.index')"
+                                :active="request()->routeIs('siswa.pengumpulan.*')">
+                                Riwayat Pengumpulan
+                            </x-nav-link>
+
+                        @endif
+
+                        {{-- MENU GURU --}}
+                        @if(auth()->user()->hasrole ('guru'))
+
+                            <x-nav-link
+                                :href="route('guru.materi.index')"
+                                :active="request()->routeIs('guru.materi.*')">
+                                Materi
+                            </x-nav-link>
+
+                            <x-nav-link
+                                :href="route('guru.tugas.index')"
+                                :active="request()->routeIs('guru.tugas.*')">
+                                Tugas
+                            </x-nav-link>
+
+                            <x-nav-link
+                                :href="route('guru.pengumpulan.index')"
+                                :active="request()->routeIs('guru.pengumpulan.*')">
+                                Pengumpulan
+                            </x-nav-link>
+
+                        @endif
+
+                    @endauth
+
                 </div>
             </div>
-
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">

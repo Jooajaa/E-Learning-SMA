@@ -12,32 +12,55 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         // Buat Role
-        $admin = Role::create(['name' => 'admin']);
-        $guru  = Role::create(['name' => 'guru']);
-        $siswa = Role::create(['name' => 'siswa']);
+        $admin = Role::firstOrCreate([
+            'name' => 'admin'
+        ]);
+
+        $guru = Role::firstOrCreate([
+            'name' => 'guru'
+        ]);
+
+        $siswa = Role::firstOrCreate([
+            'name' => 'siswa'
+        ]);
 
         // Buat User Admin
-        $userAdmin = User::create([
-            'name'     => 'Admin Sekolah',
-            'email'    => 'admin@lms.com',
-            'password' => Hash::make('password'),
-        ]);
+        $userAdmin = User::firstOrCreate(
+            [
+                'email' => 'admin@lms.com'
+            ],
+            [
+                'name' => 'Admin Sekolah',
+                'password' => Hash::make('password'),
+            ]
+        );
+
         $userAdmin->assignRole($admin);
 
         // Buat User Guru
-        $userGuru = User::create([
-            'name'     => 'Guru Contoh',
-            'email'    => 'guru@lms.com',
-            'password' => Hash::make('password'),
-        ]);
+        $userGuru = User::firstOrCreate(
+            [
+                'email' => 'guru@lms.com'
+            ],
+            [
+                'name' => 'Guru Contoh',
+                'password' => Hash::make('password'),
+            ]
+        );
+
         $userGuru->assignRole($guru);
 
         // Buat User Siswa
-        $userSiswa = User::create([
-            'name'     => 'Siswa Contoh',
-            'email'    => 'siswa@lms.com',
-            'password' => Hash::make('password'),
-        ]);
+        $userSiswa = User::firstOrCreate(
+            [
+                'email' => 'siswa@lms.com'
+            ],
+            [
+                'name' => 'Siswa Contoh',
+                'password' => Hash::make('password'),
+            ]
+        );
+
         $userSiswa->assignRole($siswa);
     }
 }

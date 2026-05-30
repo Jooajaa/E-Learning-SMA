@@ -28,16 +28,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        /** @var \App\Models\User $user */
-$user = auth()->user();
-
-    if ($user->hasRole('admin')) {
-        return redirect()->route('admin.dashboard');
-    } elseif ($user->hasRole('guru')) {
-        return redirect()->route('guru.dashboard');
-    } else {
-        return redirect()->route('siswa.dashboard');
-    }
+        return redirect()->intended(route('dashboard', absolute: false));
     }
 
     /**
