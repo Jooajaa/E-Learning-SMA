@@ -36,7 +36,7 @@ class SoalKuisController extends Controller
         ]);
 
         return redirect()
-            ->route('guru.kuis.index')
-            ->with('success', 'Soal kuis berhasil ditambahkan.');
+    ->route('guru.kuis.soal.create', $kuis->id)
+    ->with('success', 'Soal berhasil ditambahkan. Silakan tambah soal berikutnya.');
     }
 }

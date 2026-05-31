@@ -9,7 +9,9 @@ class AbsensiController extends Controller
 {
     public function index()
     {
-        $absensi = Absensi::latest()->get();
+        $absensi = Absensi::with('siswa')
+            ->latest()
+            ->get();
 
         return view('guru.absensi.index', compact('absensi'));
     }

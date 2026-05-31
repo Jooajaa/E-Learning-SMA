@@ -12,7 +12,25 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <a href="{{ route('siswa.materi.index') }}"
+                    class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
+                    <div class="text-3xl mb-3">📚</div>
+                    <h2 class="text-lg font-bold text-gray-800">Materi</h2>
+                    <p class="text-gray-500 text-sm mt-1">
+                        Lihat materi pembelajaran.
+                    </p>
+                </a>
+
+                <a href="{{ route('siswa.tugas.index') }}"
+                    class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
+                    <div class="text-3xl mb-3">📌</div>
+                    <h2 class="text-lg font-bold text-gray-800">Tugas</h2>
+                    <p class="text-gray-500 text-sm mt-1">
+                        Lihat dan kumpulkan tugas.
+                    </p>
+                </a>
 
                 <a href="{{ route('siswa.kuis.index') }}"
                     class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">

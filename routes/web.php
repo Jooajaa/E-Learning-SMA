@@ -12,12 +12,18 @@ use App\Http\Controllers\Guru\NilaiController as GuruNilaiController;
 use App\Http\Controllers\Guru\AbsensiController as GuruAbsensiController;
 use App\Http\Controllers\Guru\JadwalController as GuruJadwalController;
 use App\Http\Controllers\Guru\SoalKuisController as GuruSoalKuisController;
+use App\Http\Controllers\Guru\MateriController as GuruMateriController;
+use App\Http\Controllers\Guru\TugasController as GuruTugasController;
+use App\Http\Controllers\Guru\PengumpulanTugasController as GuruPengumpulanTugasController;
 
 use App\Http\Controllers\Siswa\DashboardController as SiswaDashboard;
 use App\Http\Controllers\Siswa\KuisController as SiswaKuisController;
 use App\Http\Controllers\Siswa\NilaiController as SiswaNilaiController;
 use App\Http\Controllers\Siswa\AbsensiController as SiswaAbsensiController;
 use App\Http\Controllers\Siswa\JadwalController as SiswaJadwalController;
+use App\Http\Controllers\Siswa\MateriController as SiswaMateriController;
+use App\Http\Controllers\Siswa\TugasController as SiswaTugasController;
+use App\Http\Controllers\Siswa\PengumpulanTugasController as SiswaPengumpulanTugasController;
 
 use App\Http\Controllers\KalenderAkademikController;
 
@@ -68,9 +74,11 @@ Route::middleware(['auth', 'role:guru'])
     ->group(function () {
         Route::get('/dashboard', [GuruDashboard::class, 'index'])->name('dashboard');
 
+        // Fitur Ahlil - Evaluasi
         Route::get('/kuis', [GuruKuisController::class, 'index'])->name('kuis.index');
         Route::get('/kuis/create', [GuruKuisController::class, 'create'])->name('kuis.create');
         Route::post('/kuis', [GuruKuisController::class, 'store'])->name('kuis.store');
+        Route::get('/kuis/{kuis}', [GuruKuisController::class, 'show'])->name('kuis.show');
 
         Route::get('/kuis/{kuis}/soal/create', [GuruSoalKuisController::class, 'create'])->name('kuis.soal.create');
         Route::post('/kuis/{kuis}/soal', [GuruSoalKuisController::class, 'store'])->name('kuis.soal.store');
@@ -78,6 +86,26 @@ Route::middleware(['auth', 'role:guru'])
         Route::get('/nilai', [GuruNilaiController::class, 'index'])->name('nilai.index');
         Route::get('/absensi', [GuruAbsensiController::class, 'index'])->name('absensi.index');
         Route::get('/jadwal', [GuruJadwalController::class, 'index'])->name('jadwal.index');
+
+        // Fitur Fuad - Pembelajaran
+        Route::get('/materi', [GuruMateriController::class, 'index'])->name('materi.index');
+        Route::get('/materi/create', [GuruMateriController::class, 'create'])->name('materi.create');
+        Route::post('/materi', [GuruMateriController::class, 'store'])->name('materi.store');
+        Route::get('/materi/{materi}', [GuruMateriController::class, 'show'])->name('materi.show');
+        Route::get('/materi/{materi}/edit', [GuruMateriController::class, 'edit'])->name('materi.edit');
+        Route::put('/materi/{materi}', [GuruMateriController::class, 'update'])->name('materi.update');
+        Route::delete('/materi/{materi}', [GuruMateriController::class, 'destroy'])->name('materi.destroy');
+
+        Route::get('/tugas', [GuruTugasController::class, 'index'])->name('tugas.index');
+        Route::get('/tugas/create', [GuruTugasController::class, 'create'])->name('tugas.create');
+        Route::post('/tugas', [GuruTugasController::class, 'store'])->name('tugas.store');
+        Route::get('/tugas/{tugas}', [GuruTugasController::class, 'show'])->name('tugas.show');
+        Route::get('/tugas/{tugas}/edit', [GuruTugasController::class, 'edit'])->name('tugas.edit');
+        Route::put('/tugas/{tugas}', [GuruTugasController::class, 'update'])->name('tugas.update');
+        Route::delete('/tugas/{tugas}', [GuruTugasController::class, 'destroy'])->name('tugas.destroy');
+
+        Route::get('/pengumpulan', [GuruPengumpulanTugasController::class, 'index'])->name('pengumpulan.index');
+        Route::put('/pengumpulan/{pengumpulan}/nilai', [GuruPengumpulanTugasController::class, 'beriNilai'])->name('pengumpulan.nilai');
     });
 
 // Siswa Routes
@@ -87,13 +115,25 @@ Route::middleware(['auth', 'role:siswa'])
     ->group(function () {
         Route::get('/dashboard', [SiswaDashboard::class, 'index'])->name('dashboard');
 
+        // Fitur Ahlil - Evaluasi
         Route::get('/kuis', [SiswaKuisController::class, 'index'])->name('kuis.index');
         Route::get('/kuis/{kuis}/kerjakan', [SiswaKuisController::class, 'kerjakan'])->name('kuis.kerjakan');
         Route::post('/kuis/{kuis}/submit', [SiswaKuisController::class, 'submit'])->name('kuis.submit');
 
         Route::get('/nilai', [SiswaNilaiController::class, 'index'])->name('nilai.index');
         Route::get('/absensi', [SiswaAbsensiController::class, 'index'])->name('absensi.index');
+        Route::post('/absensi', [SiswaAbsensiController::class, 'store'])->name('absensi.store');
         Route::get('/jadwal', [SiswaJadwalController::class, 'index'])->name('jadwal.index');
+
+        // Fitur Fuad - Pembelajaran
+        Route::get('/materi', [SiswaMateriController::class, 'index'])->name('materi.index');
+        Route::get('/materi/{materi}', [SiswaMateriController::class, 'show'])->name('materi.show');
+
+        Route::get('/tugas', [SiswaTugasController::class, 'index'])->name('tugas.index');
+        Route::get('/tugas/{tugas}', [SiswaTugasController::class, 'show'])->name('tugas.show');
+
+        Route::get('/pengumpulan', [SiswaPengumpulanTugasController::class, 'index'])->name('pengumpulan.index');
+        Route::post('/pengumpulan', [SiswaPengumpulanTugasController::class, 'store'])->name('pengumpulan.store');
     });
 
 // Kalender Akademik
