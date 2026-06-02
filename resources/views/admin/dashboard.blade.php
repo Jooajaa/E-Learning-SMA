@@ -8,6 +8,9 @@
 <body>
     <h1>Selamat Datang, Admin! 👨‍💼</h1>
     <p>Ini adalah halaman dashboard admin.</p>
+    <a href="{{ route('admin.kelas.index') }}">
+    Manajemen Kelas
+</a>
     <form method="POST" action="{{ route('logout') }}">
         @csrf
         <button type="submit">Logout</button>
