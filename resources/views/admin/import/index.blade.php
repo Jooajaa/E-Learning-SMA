@@ -40,7 +40,7 @@
                     <form action="{{ route('admin.import.siswa') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
-                        <input type="file" name="file" required
+                        <input type="file" name="file_siswa" required
                             class="block w-full text-sm text-slate-700 border border-slate-300 rounded-xl cursor-pointer bg-white p-3 mb-5">
 
                         <button type="submit"
@@ -63,7 +63,7 @@
                     <form action="{{ route('admin.import.guru') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
-                        <input type="file" name="file" required
+                        <input type="file" name="file_guru" required
                             class="block w-full text-sm text-slate-700 border border-slate-300 rounded-xl cursor-pointer bg-white p-3 mb-5">
 
                         <button type="submit"
@@ -72,6 +72,64 @@
                         </button>
                     </form>
                 </div>
+            </div>
+
+            <div class="mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                <h2 class="text-xl font-bold text-slate-800 mb-4">Format File Import</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-semibold text-slate-700 mb-2">Format Siswa</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border border-slate-200 text-sm">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="border px-3 py-2">nama</th>
+                                        <th class="border px-3 py-2">email</th>
+                                        <th class="border px-3 py-2">nis</th>
+                                        <th class="border px-3 py-2">status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="border px-3 py-2">Budi Santoso</td>
+                                        <td class="border px-3 py-2">budi@gmail.com</td>
+                                        <td class="border px-3 py-2">12345</td>
+                                        <td class="border px-3 py-2">aktif</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-slate-700 mb-2">Format Guru</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border border-slate-200 text-sm">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="border px-3 py-2">nama</th>
+                                        <th class="border px-3 py-2">email</th>
+                                        <th class="border px-3 py-2">nip</th>
+                                        <th class="border px-3 py-2">status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="border px-3 py-2">Pak Andi</td>
+                                        <td class="border px-3 py-2">andi@gmail.com</td>
+                                        <td class="border px-3 py-2">98765</td>
+                                        <td class="border px-3 py-2">aktif</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-sm text-slate-500 mt-5">
+                    Password default akun hasil import adalah <strong>password</strong>.
+                </p>
             </div>
 
         </div>
