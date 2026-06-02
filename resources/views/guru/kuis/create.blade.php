@@ -1,20 +1,17 @@
 <x-app-layout>
-    <div class="py-6 bg-gray-50 min-h-screen">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-slate-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
             <div class="mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">
-                    Tambah Kuis
-                </h1>
-                <p class="text-gray-500 mt-1">
-                    Buat kuis baru untuk siswa.
+                <h1 class="text-3xl font-extrabold text-slate-800">Tambah Kuis</h1>
+                <p class="text-slate-500 mt-1">
+                    Buat kuis pilihan ganda untuk kelas tertentu.
                 </p>
             </div>
 
-            <div class="bg-white shadow-sm rounded-xl border border-gray-200 p-6">
-
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                 @if ($errors->any())
-                    <div class="mb-4 p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg">
+                    <div class="mb-6 p-4 bg-red-100 border border-red-300 text-red-700 rounded-2xl">
                         <ul class="list-disc list-inside">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -23,63 +20,71 @@
                     </div>
                 @endif
 
-                <form action="{{ route('guru.kuis.store') }}" method="POST">
+                @if ($kelas->isEmpty())
+                    <div class="mb-6 p-4 bg-yellow-100 border border-yellow-300 text-yellow-700 rounded-2xl">
+                        Kamu belum ditugaskan mengajar kelas mana pun. Hubungi admin untuk mengatur penugasan.
+                    </div>
+                @endif
+
+                <form action="{{ route('guru.kuis.store') }}" method="POST" class="space-y-5">
                     @csrf
 
-                    <div class="mb-5">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            Judul Kuis
-                        </label>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Kelas</label>
+                        <select name="kelas_id" required
+                            class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">-- Pilih Kelas --</option>
+                            @foreach ($kelas as $item)
+                                <option value="{{ $item->id }}" {{ old('kelas_id') == $item->id ? 'selected' : '' }}>
+                                    {{ $item->nama_kelas }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Judul Kuis</label>
                         <input type="text" name="judul" value="{{ old('judul') }}"
-                            placeholder="Contoh: Kuis Matematika Dasar"
-                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            placeholder="Contoh: Kuis Bab 1"
+                            class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             required>
                     </div>
 
-                    <div class="mb-5">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            Deskripsi
-                        </label>
-
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Deskripsi</label>
                         <textarea name="deskripsi" rows="4"
                             placeholder="Tuliskan deskripsi singkat kuis"
-                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('deskripsi') }}</textarea>
+                            class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('deskripsi') }}</textarea>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Waktu Mulai
-                            </label>
-
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Waktu Mulai</label>
                             <input type="datetime-local" name="waktu_mulai" value="{{ old('waktu_mulai') }}"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                required>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Waktu Selesai
-                            </label>
-
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Waktu Selesai</label>
                             <input type="datetime-local" name="waktu_selesai" value="{{ old('waktu_selesai') }}"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                required>
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap gap-3">
+                    <div class="flex flex-wrap gap-3 pt-2">
                         <button type="submit"
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow-sm transition">
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition">
                             Simpan Kuis
                         </button>
 
                         <a href="{{ route('guru.kuis.index') }}"
-                            class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-5 py-2 rounded-lg transition">
+                            class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3 rounded-xl transition">
                             Batal
                         </a>
                     </div>
                 </form>
-
             </div>
 
         </div>

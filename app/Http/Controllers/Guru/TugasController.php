@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tugas;
+use App\Models\GuruKelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -12,23 +13,32 @@ class TugasController extends Controller
 {
     public function index()
     {
-        $tugas = Tugas::latest()->get();
+        $tugas = Tugas::with(['kelas', 'pengumpulan'])
+            ->where('guru_id', Auth::id())
+            ->latest()
+            ->get();
 
         return view('guru.tugas.index', compact('tugas'));
     }
 
     public function create()
     {
-        return view('guru.tugas.create');
+        $guruKelas = GuruKelas::with('kelas')
+            ->where('guru_id', Auth::id())
+            ->get();
+
+        $kelas = $guruKelas->pluck('kelas')->filter();
+
+        return view('guru.tugas.create', compact('kelas'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
+            'kelas_id' => 'required|exists:kelas,id',
             'judul' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string',
             'instruksi' => 'nullable|string',
-            'deadline' => 'nullable|date',
+            'deadline' => 'required|date',
             'file' => 'nullable|file|max:5120',
         ]);
 
@@ -39,12 +49,12 @@ class TugasController extends Controller
         }
 
         Tugas::create([
+            'guru_id' => Auth::id(),
+            'kelas_id' => $request->kelas_id,
             'judul' => $request->judul,
-            'deskripsi' => $request->deskripsi ?? $request->instruksi,
-            'instruksi' => $request->instruksi ?? $request->deskripsi,
+            'instruksi' => $request->instruksi ?? '-',
             'deadline' => $request->deadline,
             'file' => $filePath,
-            'guru_id' => Auth::id(),
         ]);
 
         return redirect()
@@ -52,29 +62,43 @@ class TugasController extends Controller
             ->with('success', 'Tugas berhasil ditambahkan.');
     }
 
-    public function show($id)
+    public function show(Tugas $tugas)
     {
-        $tugas = Tugas::findOrFail($id);
+        if ($tugas->guru_id != Auth::id()) {
+            abort(403, 'Kamu tidak memiliki akses ke tugas ini.');
+        }
+
+        $tugas->load(['kelas', 'pengumpulan.siswa']);
 
         return view('guru.tugas.show', compact('tugas'));
     }
 
-    public function edit($id)
+    public function edit(Tugas $tugas)
     {
-        $tugas = Tugas::findOrFail($id);
+        if ($tugas->guru_id != Auth::id()) {
+            abort(403, 'Kamu tidak memiliki akses untuk mengedit tugas ini.');
+        }
 
-        return view('guru.tugas.edit', compact('tugas'));
+        $guruKelas = GuruKelas::with('kelas')
+            ->where('guru_id', Auth::id())
+            ->get();
+
+        $kelas = $guruKelas->pluck('kelas')->filter();
+
+        return view('guru.tugas.edit', compact('tugas', 'kelas'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Tugas $tugas)
     {
-        $tugas = Tugas::findOrFail($id);
+        if ($tugas->guru_id != Auth::id()) {
+            abort(403, 'Kamu tidak memiliki akses untuk mengubah tugas ini.');
+        }
 
         $request->validate([
+            'kelas_id' => 'required|exists:kelas,id',
             'judul' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string',
             'instruksi' => 'nullable|string',
-            'deadline' => 'nullable|date',
+            'deadline' => 'required|date',
             'file' => 'nullable|file|max:5120',
         ]);
 
@@ -89,9 +113,9 @@ class TugasController extends Controller
         }
 
         $tugas->update([
+            'kelas_id' => $request->kelas_id,
             'judul' => $request->judul,
-            'deskripsi' => $request->deskripsi ?? $request->instruksi,
-            'instruksi' => $request->instruksi ?? $request->deskripsi,
+            'instruksi' => $request->instruksi ?? '-',
             'deadline' => $request->deadline,
             'file' => $filePath,
         ]);
@@ -101,9 +125,11 @@ class TugasController extends Controller
             ->with('success', 'Tugas berhasil diperbarui.');
     }
 
-    public function destroy($id)
+    public function destroy(Tugas $tugas)
     {
-        $tugas = Tugas::findOrFail($id);
+        if ($tugas->guru_id != Auth::id()) {
+            abort(403, 'Kamu tidak memiliki akses untuk menghapus tugas ini.');
+        }
 
         if ($tugas->file && Storage::disk('public')->exists($tugas->file)) {
             Storage::disk('public')->delete($tugas->file);

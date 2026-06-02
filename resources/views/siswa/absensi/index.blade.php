@@ -1,128 +1,96 @@
 <x-app-layout>
-    <div class="py-6 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-            <div class="mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">
-                    Absensi Siswa
-                </h1>
-                <p class="text-gray-500 mt-1">
+            <div class="bg-gradient-to-r from-cyan-700 to-slate-900 rounded-3xl p-8 text-white shadow-lg mb-8">
+                <p class="text-cyan-100 font-semibold mb-2">Kehadiran Siswa</p>
+                <h1 class="text-3xl md:text-4xl font-extrabold">Absensi Siswa</h1>
+                <p class="text-cyan-100 mt-3 max-w-2xl">
                     Isi absensi harian dan lihat riwayat kehadiran kamu.
                 </p>
             </div>
 
             @if (session('success'))
-                <div class="mb-4 p-4 bg-green-100 border border-green-300 text-green-700 rounded-lg">
+                <div class="mb-6 p-4 bg-green-100 border border-green-300 text-green-700 rounded-2xl">
                     {{ session('success') }}
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="mb-4 p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg">
-                    {{ session('error') }}
                 </div>
             @endif
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-2">
-                            Absensi Hari Ini
-                        </h2>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                    <h2 class="text-xl font-bold text-slate-800 mb-1">Absensi Hari Ini</h2>
+                    <p class="text-sm text-slate-500 mb-5">
+                        Isi status kehadiran kamu pada hari ini.
+                    </p>
 
-                        <p class="text-sm text-gray-500 mb-5">
-                            Tanggal: {{ now()->format('d-m-Y') }}
-                        </p>
+                    <form action="{{ route('siswa.absensi.store') }}" method="POST" class="space-y-5">
+                        @csrf
 
-                        @if ($absensiHariIni)
-                            <div class="p-4 bg-green-100 border border-green-300 text-green-700 rounded-lg">
-                                <p class="font-semibold">
-                                    Kamu sudah absen hari ini.
-                                </p>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Status Kehadiran</label>
+                            <select name="status" required
+                                class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="hadir">Hadir</option>
+                                <option value="izin">Izin</option>
+                                <option value="sakit">Sakit</option>
+                                <option value="alpha">Alpha</option>
+                            </select>
+                        </div>
 
-                                <p class="mt-2">
-                                    Status: <span class="font-bold">{{ $absensiHariIni->status }}</span>
-                                </p>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Keterangan</label>
+                            <textarea name="keterangan" rows="4"
+                                placeholder="Contoh: Hadir tepat waktu"
+                                class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('keterangan') }}</textarea>
+                        </div>
 
-                                <p>
-                                    Keterangan: {{ $absensiHariIni->keterangan ?? '-' }}
-                                </p>
-                            </div>
-                        @else
-                            <form action="{{ route('siswa.absensi.store') }}" method="POST">
-                                @csrf
-
-                                <div class="mb-4">
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                        Status Kehadiran
-                                    </label>
-
-                                    <select name="status"
-                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                        required>
-                                        <option value="">-- Pilih Status --</option>
-                                        <option value="Hadir">Hadir</option>
-                                        <option value="Izin">Izin</option>
-                                        <option value="Sakit">Sakit</option>
-                                        <option value="Alpha">Alpha</option>
-                                    </select>
-                                </div>
-
-                                <div class="mb-5">
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                        Keterangan
-                                    </label>
-
-                                    <textarea name="keterangan" rows="3"
-                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                        placeholder="Contoh: Hadir tepat waktu / izin karena keperluan keluarga"></textarea>
-                                </div>
-
-                                <button type="submit"
-                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition">
-                                    Kirim Absensi
-                                </button>
-                            </form>
-                        @endif
-                    </div>
+                        <button type="submit"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-3 rounded-xl transition">
+                            Kirim Absensi
+                        </button>
+                    </form>
                 </div>
 
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-5">
-                            Riwayat Absensi
-                        </h2>
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                    <h2 class="text-xl font-bold text-slate-800 mb-1">Riwayat Absensi</h2>
+                    <p class="text-sm text-slate-500 mb-5">
+                        Daftar absensi yang sudah kamu kirim.
+                    </p>
 
-                        <div class="space-y-4">
-                            @forelse ($absensi as $item)
-                                <div class="border border-gray-200 rounded-lg p-4 flex items-start justify-between gap-4">
+                    @if ($absensi->isEmpty())
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-8 text-center text-slate-500">
+                            Belum ada riwayat absensi.
+                        </div>
+                    @else
+                        <div class="space-y-3">
+                            @foreach ($absensi as $item)
+                                <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 flex items-start justify-between gap-3">
                                     <div>
-                                        <h3 class="font-bold text-gray-800">
+                                        <h3 class="font-bold text-slate-800">
                                             {{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}
                                         </h3>
-
-                                        <p class="text-sm text-gray-600 mt-1">
-                                            Keterangan: {{ $item->keterangan ?? '-' }}
+                                        <p class="text-sm text-slate-500 mt-1">
+                                            {{ $item->keterangan ?? '-' }}
                                         </p>
                                     </div>
 
-                                    <span class="px-3 py-1 text-xs rounded-full font-semibold
-                                        @if ($item->status == 'Hadir') bg-green-100 text-green-700
-                                        @elseif ($item->status == 'Izin') bg-blue-100 text-blue-700
-                                        @elseif ($item->status == 'Sakit') bg-yellow-100 text-yellow-700
-                                        @else bg-red-100 text-red-700
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold
+                                        @if (strtolower($item->status) == 'hadir')
+                                            bg-green-100 text-green-700
+                                        @elseif (strtolower($item->status) == 'izin')
+                                            bg-blue-100 text-blue-700
+                                        @elseif (strtolower($item->status) == 'sakit')
+                                            bg-yellow-100 text-yellow-700
+                                        @else
+                                            bg-red-100 text-red-700
                                         @endif">
-                                        {{ $item->status }}
+                                        {{ ucfirst($item->status) }}
                                     </span>
                                 </div>
-                            @empty
-                                <div class="text-center text-gray-500 py-8">
-                                    Belum ada riwayat absensi.
-                                </div>
-                            @endforelse
+                            @endforeach
                         </div>
-                    </div>
+                    @endif
                 </div>
 
             </div>

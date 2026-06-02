@@ -10,19 +10,23 @@ class Tugas extends Model
 
     protected $fillable = [
         'guru_id',
+        'kelas_id',
         'judul',
         'instruksi',
         'deadline',
         'file',
     ];
 
-    // Relasi ke guru
     public function guru()
     {
         return $this->belongsTo(User::class, 'guru_id');
     }
 
-    // Relasi pengumpulan tugas
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'kelas_id');
+    }
+
     public function pengumpulan()
     {
         return $this->hasMany(PengumpulanTugas::class);

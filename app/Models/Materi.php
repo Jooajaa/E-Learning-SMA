@@ -10,6 +10,7 @@ class Materi extends Model
 
     protected $fillable = [
         'guru_id',
+        'kelas_id',
         'judul',
         'deskripsi',
         'file',
@@ -17,9 +18,13 @@ class Materi extends Model
         'is_active',
     ];
 
-    // Relasi ke user guru
     public function guru()
     {
         return $this->belongsTo(User::class, 'guru_id');
+    }
+
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'kelas_id');
     }
 }

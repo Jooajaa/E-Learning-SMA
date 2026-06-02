@@ -2,9 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\KalenderAkademikController;
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\KelasController;
+use App\Http\Controllers\Admin\MapelController;
+use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\Admin\GuruController;
+use App\Http\Controllers\Admin\PenugasanController;
+use App\Http\Controllers\Admin\ResetPasswordController;
+use App\Http\Controllers\Admin\ImportController;
+use App\Http\Controllers\Admin\JadwalController as AdminJadwalController;
 
 use App\Http\Controllers\Guru\DashboardController as GuruDashboard;
 use App\Http\Controllers\Guru\KuisController as GuruKuisController;
@@ -25,13 +35,11 @@ use App\Http\Controllers\Siswa\MateriController as SiswaMateriController;
 use App\Http\Controllers\Siswa\TugasController as SiswaTugasController;
 use App\Http\Controllers\Siswa\PengumpulanTugasController as SiswaPengumpulanTugasController;
 
-use App\Http\Controllers\KalenderAkademikController;
-
 Route::get('/', function () {
     return view('welcome');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // Redirect dashboard sesuai role
 Route::get('/dashboard', function () {
@@ -65,6 +73,26 @@ Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+
+        Route::resource('kelas', KelasController::class);
+        Route::resource('mapel', MapelController::class);
+        Route::resource('siswa', SiswaController::class);
+        Route::resource('guru', GuruController::class);
+
+        Route::get('/penugasan', [PenugasanController::class, 'index'])->name('penugasan.index');
+        Route::post('/penugasan/siswa-kelas', [PenugasanController::class, 'storeSiswaKelas'])->name('penugasan.siswa-kelas');
+        Route::post('/penugasan/guru-mapel', [PenugasanController::class, 'storeGuruMapel'])->name('penugasan.guru-mapel');
+        Route::post('/penugasan/guru-kelas', [PenugasanController::class, 'storeGuruKelas'])->name('penugasan.guru-kelas');
+
+        Route::get('/reset-password/{user}', [ResetPasswordController::class, 'edit'])->name('reset-password.edit');
+        Route::put('/reset-password/{user}', [ResetPasswordController::class, 'update'])->name('reset-password.update');
+
+        Route::get('/import', [ImportController::class, 'index'])->name('import.index');
+        Route::post('/import/siswa', [ImportController::class, 'importSiswa'])->name('import.siswa');
+        Route::post('/import/guru', [ImportController::class, 'importGuru'])->name('import.guru');
+
+        // Jadwal Pelajaran
+        Route::resource('jadwal', AdminJadwalController::class);
     });
 
 // Guru Routes

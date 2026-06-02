@@ -23,6 +23,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'nis',
+        'nip',
+        'status',
     ];
 
     /**
@@ -46,5 +49,18 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    public function siswaKelas()
+        {
+            return $this->hasOne(\App\Models\SiswaKelas::class, 'siswa_id');
+        }
+    public function guruKelas()
+        {
+            return $this->hasMany(\App\Models\GuruKelas::class, 'guru_id');
+        }
+
+    public function guruMapel()
+    {
+    return $this->hasMany(\App\Models\GuruMapel::class, 'guru_id');
     }
 }

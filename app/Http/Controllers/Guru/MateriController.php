@@ -4,94 +4,120 @@ namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
 use App\Models\Materi;
+use App\Models\GuruKelas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class MateriController extends Controller
 {
     public function index()
     {
-        $materi = Materi::latest()->get();
+        $materi = Materi::with('kelas')
+            ->where('guru_id', Auth::id())
+            ->latest()
+            ->get();
 
         return view('guru.materi.index', compact('materi'));
     }
 
     public function create()
     {
-        return view('guru.materi.create');
+        $guruKelas = GuruKelas::with('kelas')
+            ->where('guru_id', Auth::id())
+            ->get();
+
+        $kelas = $guruKelas->pluck('kelas')->filter();
+
+        return view('guru.materi.create', compact('kelas'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'judul' => 'required',
-            'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx'
+            'kelas_id' => 'required|exists:kelas,id',
+            'judul' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'file' => 'nullable|file|max:5120',
         ]);
 
-        $file = $request->file('file')
-            ->store('materi', 'public');
+        $filePath = null;
+
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('materi', 'public');
+        }
 
         Materi::create([
-            'guru_id' => auth()->id(),
+            'guru_id' => Auth::id(),
+            'kelas_id' => $request->kelas_id,
             'judul' => $request->judul,
             'deskripsi' => $request->deskripsi,
-            'file' => $file,
+            'file' => $filePath,
+            'is_active' => true,
         ]);
 
         return redirect()
             ->route('guru.materi.index')
-            ->with('success', 'Materi berhasil ditambahkan');
+            ->with('success', 'Materi berhasil ditambahkan.');
     }
 
-    public function show($id)
+    public function show(Materi $materi)
     {
-        $materi = Materi::findOrFail($id);
-
         return view('guru.materi.show', compact('materi'));
     }
 
-    public function edit($id)
+    public function edit(Materi $materi)
     {
-        $materi = Materi::findOrFail($id);
+        $guruKelas = GuruKelas::with('kelas')
+            ->where('guru_id', Auth::id())
+            ->get();
 
-        return view('guru.materi.edit', compact('materi'));
+        $kelas = $guruKelas->pluck('kelas')->filter();
+
+        return view('guru.materi.edit', compact('materi', 'kelas'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Materi $materi)
     {
-        $materi = Materi::findOrFail($id);
+        $request->validate([
+            'kelas_id' => 'required|exists:kelas,id',
+            'judul' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'file' => 'nullable|file|max:5120',
+        ]);
+
+        $filePath = $materi->file;
 
         if ($request->hasFile('file')) {
+            if ($materi->file && Storage::disk('public')->exists($materi->file)) {
+                Storage::disk('public')->delete($materi->file);
+            }
 
-            Storage::disk('public')
-                ->delete($materi->file);
-
-            $file = $request->file('file')
-                ->store('materi', 'public');
-
-            $materi->file = $file;
+            $filePath = $request->file('file')->store('materi', 'public');
         }
 
-        $materi->judul = $request->judul;
-        $materi->deskripsi = $request->deskripsi;
-
-        $materi->save();
+        $materi->update([
+            'kelas_id' => $request->kelas_id,
+            'judul' => $request->judul,
+            'deskripsi' => $request->deskripsi,
+            'file' => $filePath,
+        ]);
 
         return redirect()
             ->route('guru.materi.index')
-            ->with('success', 'Materi berhasil diupdate');
+            ->with('success', 'Materi berhasil diperbarui.');
     }
 
-    public function destroy($id)
+    public function destroy(Materi $materi)
     {
-        $materi = Materi::findOrFail($id);
-
-        Storage::disk('public')
-            ->delete($materi->file);
+        if ($materi->file && Storage::disk('public')->exists($materi->file)) {
+            Storage::disk('public')->delete($materi->file);
+        }
 
         $materi->delete();
 
-        return back()
-            ->with('success', 'Materi berhasil dihapus');
+        return redirect()
+            ->route('guru.materi.index')
+            ->with('success', 'Materi berhasil dihapus.');
     }
 }

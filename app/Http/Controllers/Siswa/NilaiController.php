@@ -11,11 +11,12 @@ class NilaiController extends Controller
 {
     public function index()
     {
-        $nilaiKuis = Nilai::where('siswa_id', Auth::id())
+        $nilaiKuis = Nilai::with(['kuis', 'guru'])
+            ->where('siswa_id', Auth::id())
             ->latest()
             ->get();
 
-        $nilaiTugas = PengumpulanTugas::with('tugas')
+        $nilaiTugas = PengumpulanTugas::with(['tugas', 'tugas.guru'])
             ->where('siswa_id', Auth::id())
             ->whereNotNull('nilai')
             ->latest()

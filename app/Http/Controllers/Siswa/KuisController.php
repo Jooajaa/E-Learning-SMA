@@ -13,9 +13,17 @@ class KuisController extends Controller
 {
     public function index()
     {
-        $kuis = Kuis::with('soal')->latest()->get();
+        $user = Auth::user()->load('siswaKelas');
+
+        $kelasId = $user->siswaKelas->kelas_id ?? null;
+
+        $kuis = Kuis::with(['soal', 'guru', 'kelas'])
+            ->where('kelas_id', $kelasId)
+            ->latest()
+            ->get();
 
         $kuisSudahDikerjakan = Nilai::where('siswa_id', Auth::id())
+            ->whereNotNull('kuis_id')
             ->pluck('kuis_id')
             ->toArray();
 
@@ -24,14 +32,22 @@ class KuisController extends Controller
 
     public function kerjakan(Kuis $kuis)
     {
-        $sudahMengerjakan = Nilai::where('siswa_id', Auth::id())
+        $user = Auth::user()->load('siswaKelas');
+
+        $kelasId = $user->siswaKelas->kelas_id ?? null;
+
+        if ($kuis->kelas_id != $kelasId) {
+            abort(403, 'Kamu tidak memiliki akses ke kuis ini.');
+        }
+
+        $sudahDikerjakan = Nilai::where('siswa_id', Auth::id())
             ->where('kuis_id', $kuis->id)
             ->exists();
 
-        if ($sudahMengerjakan) {
+        if ($sudahDikerjakan) {
             return redirect()
                 ->route('siswa.kuis.index')
-                ->with('error', 'Kamu sudah mengerjakan kuis ini.');
+                ->with('error', 'Kuis ini sudah kamu kerjakan.');
         }
 
         $kuis->load('soal');
@@ -41,46 +57,46 @@ class KuisController extends Controller
 
     public function submit(Request $request, Kuis $kuis)
     {
-        $sudahMengerjakan = Nilai::where('siswa_id', Auth::id())
+        $user = Auth::user()->load('siswaKelas');
+
+        $kelasId = $user->siswaKelas->kelas_id ?? null;
+
+        if ($kuis->kelas_id != $kelasId) {
+            abort(403, 'Kamu tidak memiliki akses ke kuis ini.');
+        }
+
+        $sudahDikerjakan = Nilai::where('siswa_id', Auth::id())
             ->where('kuis_id', $kuis->id)
             ->exists();
 
-        if ($sudahMengerjakan) {
+        if ($sudahDikerjakan) {
             return redirect()
                 ->route('siswa.kuis.index')
-                ->with('error', 'Kamu sudah mengerjakan kuis ini.');
+                ->with('error', 'Kuis ini sudah pernah kamu kerjakan.');
         }
 
         $kuis->load('soal');
 
         $benar = 0;
-        $jumlahSoal = $kuis->soal->count();
-
-        if ($jumlahSoal == 0) {
-            return redirect()
-                ->route('siswa.kuis.index')
-                ->with('error', 'Kuis belum memiliki soal.');
-        }
+        $total = $kuis->soal->count();
 
         foreach ($kuis->soal as $soal) {
-            $jawabanSiswa = $request->input('jawaban_' . $soal->id);
-
-            $isBenar = $jawabanSiswa === $soal->jawaban_benar;
-
-            if ($isBenar) {
-                $benar++;
-            }
+            $jawabanSiswa = $request->jawaban[$soal->id] ?? null;
 
             JawabanKuis::create([
                 'kuis_id' => $kuis->id,
                 'soal_kuis_id' => $soal->id,
                 'siswa_id' => Auth::id(),
                 'jawaban' => $jawabanSiswa,
-                'benar' => $isBenar,
+                'is_benar' => $jawabanSiswa === $soal->jawaban_benar,
             ]);
+
+            if ($jawabanSiswa === $soal->jawaban_benar) {
+                $benar++;
+            }
         }
 
-        $nilaiAkhir = round(($benar / $jumlahSoal) * 100);
+        $nilaiAkhir = $total > 0 ? round(($benar / $total) * 100) : 0;
 
         Nilai::create([
             'siswa_id' => Auth::id(),

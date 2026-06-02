@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
 
 class Absensi extends Model
 {
@@ -11,7 +10,6 @@ class Absensi extends Model
 
     protected $fillable = [
         'siswa_id',
-        'guru_id',
         'tanggal',
         'status',
         'keterangan',
@@ -20,10 +18,5 @@ class Absensi extends Model
     public function siswa()
     {
         return $this->belongsTo(User::class, 'siswa_id');
-    }
-
-    public function guru()
-    {
-        return $this->belongsTo(User::class, 'guru_id');
     }
 }

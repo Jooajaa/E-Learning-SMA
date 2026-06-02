@@ -15,4 +15,19 @@ class Nilai extends Model
         'nilai',
         'keterangan',
     ];
+
+    public function siswa()
+    {
+        return $this->belongsTo(User::class, 'siswa_id');
+    }
+
+    public function guru()
+    {
+        return $this->belongsTo(User::class, 'guru_id');
+    }
+
+    public function kuis()
+    {
+        return $this->belongsTo(Kuis::class, 'kuis_id');
+    }
 }

@@ -1,58 +1,71 @@
 <x-app-layout>
-    <div class="py-6 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-            <div class="mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">
-                    Jadwal Guru
-                </h1>
-                <p class="text-gray-500 mt-1">
-                    Lihat jadwal mengajar berdasarkan hari, jam, kelas, dan mata pelajaran.
+            <div class="bg-gradient-to-r from-indigo-700 to-slate-900 rounded-3xl p-8 text-white shadow-lg mb-8">
+                <p class="text-indigo-100 font-semibold mb-2">Jadwal Mengajar</p>
+                <h1 class="text-3xl md:text-4xl font-extrabold">Jadwal Guru</h1>
+                <p class="text-indigo-100 mt-3 max-w-2xl">
+                    Lihat jadwal mengajar berdasarkan kelas, mata pelajaran, hari, jam, dan ruangan.
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @forelse ($jadwal as $item)
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-xl font-bold text-gray-800">
-                                {{ $item->hari }}
-                            </h2>
+            @if ($jadwal->isEmpty())
+                <div class="bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-500 shadow-sm">
+                    Belum ada jadwal mengajar.
+                </div>
+            @else
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach ($jadwal as $item)
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                            <div class="flex items-start justify-between gap-3 mb-5">
+                                <div>
+                                    <p class="text-sm text-slate-500">Hari</p>
+                                    <h3 class="text-2xl font-extrabold text-slate-800 mt-1">
+                                        {{ $item->hari }}
+                                    </h3>
+                                </div>
 
-                            <span class="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700">
-                                {{ $item->kelas ?? '-' }}
-                            </span>
+                                <span class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">
+                                    Jadwal
+                                </span>
+                            </div>
+
+                            <div class="space-y-3 text-sm">
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                                    <p class="text-slate-500">Jam</p>
+                                    <p class="font-bold text-slate-800 mt-1">
+                                        {{ \Carbon\Carbon::parse($item->jam_mulai)->format('H:i') }}
+                                        -
+                                        {{ \Carbon\Carbon::parse($item->jam_selesai)->format('H:i') }}
+                                    </p>
+                                </div>
+
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                                    <p class="text-slate-500">Kelas</p>
+                                    <p class="font-bold text-slate-800 mt-1">
+                                        {{ $item->kelas->nama_kelas ?? '-' }}
+                                    </p>
+                                </div>
+
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                                    <p class="text-slate-500">Mata Pelajaran</p>
+                                    <p class="font-bold text-slate-800 mt-1">
+                                        {{ $item->mataPelajaran->nama_mapel ?? '-' }}
+                                    </p>
+                                </div>
+
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                                    <p class="text-slate-500">Ruangan</p>
+                                    <p class="font-bold text-slate-800 mt-1">
+                                        {{ $item->ruangan ?? '-' }}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-
-                        <p class="text-lg font-semibold text-gray-700 mb-4">
-                            {{ $item->mata_pelajaran }}
-                        </p>
-
-                        <div class="space-y-2 text-sm text-gray-600">
-                            <p>
-                                <span class="font-semibold">Jam Mulai:</span>
-                                {{ $item->jam_mulai }}
-                            </p>
-
-                            <p>
-                                <span class="font-semibold">Jam Selesai:</span>
-                                {{ $item->jam_selesai }}
-                            </p>
-
-                            <p>
-                                <span class="font-semibold">Guru ID:</span>
-                                {{ $item->guru_id ?? '-' }}
-                            </p>
-                        </div>
-                    </div>
-                @empty
-                    <div class="col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-                        <p class="text-gray-500">
-                            Belum ada data jadwal.
-                        </p>
-                    </div>
-                @endforelse
-            </div>
+                    @endforeach
+                </div>
+            @endif
 
         </div>
     </div>

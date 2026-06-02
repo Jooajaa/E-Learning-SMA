@@ -1,107 +1,90 @@
 <x-app-layout>
-    <div class="py-6 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-            <div class="mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">
-                    Nilai Siswa
-                </h1>
-                <p class="text-gray-500 mt-1">
-                    Lihat hasil nilai kuis dan tugas yang sudah dikerjakan.
+            @php
+                $nilaiKuisData = $nilaiKuis ?? collect();
+                $nilaiTugasData = $nilaiTugas ?? collect();
+            @endphp
+
+            <div class="bg-gradient-to-r from-purple-700 to-slate-900 rounded-3xl p-8 text-white shadow-lg mb-8">
+                <p class="text-purple-100 font-semibold mb-2">Hasil Belajar</p>
+                <h1 class="text-3xl md:text-4xl font-extrabold">Nilai Siswa</h1>
+                <p class="text-purple-100 mt-3 max-w-2xl">
+                    Lihat hasil nilai dari kuis dan tugas yang sudah kamu kerjakan.
                 </p>
             </div>
 
-            <div class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">
-                    Nilai Kuis
-                </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @forelse ($nilaiKuis as $item)
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                            <div class="flex items-start justify-between mb-4">
-                                <h3 class="text-lg font-bold text-gray-800">
-                                    Kuis ID: {{ $item->kuis_id ?? '-' }}
-                                </h3>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">Nilai Kuis</h2>
 
-                                <span class="px-3 py-1 rounded-full text-sm font-bold
-                                    {{ $item->nilai >= 75 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                    {{ $item->nilai }}
-                                </span>
-                            </div>
-
-                            <div class="space-y-2 text-sm text-gray-600">
-                                <p>
-                                    {{ $item->keterangan ?? 'Nilai kuis' }}
-                                </p>
-
-                                <p>
-                                    <span class="font-semibold">Tanggal:</span>
-                                    {{ $item->created_at ? $item->created_at->format('d-m-Y H:i') : '-' }}
-                                </p>
-                            </div>
+                    @if ($nilaiKuisData->isEmpty())
+                        <div class="bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-500 shadow-sm">
+                            Belum ada nilai kuis.
                         </div>
-                    @empty
-                        <div class="col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-                            <p class="text-gray-500">
-                                Belum ada nilai kuis.
-                            </p>
+                    @else
+                        <div class="space-y-4">
+                            @foreach ($nilaiKuisData as $item)
+                                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <h3 class="font-extrabold text-slate-800 text-lg">
+                                                {{ $item->kuis->judul ?? 'Kuis' }}
+                                            </h3>
+                                            <p class="text-sm text-slate-500 mt-1">
+                                                Guru: {{ $item->guru->name ?? $item->kuis->guru->name ?? '-' }}
+                                            </p>
+                                        </div>
+
+                                        <span class="px-4 py-2 rounded-xl font-extrabold
+                                            {{ $item->nilai >= 75 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                            {{ $item->nilai }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
-                    @endforelse
+                    @endif
                 </div>
-            </div>
 
-            <div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">
-                    Nilai Tugas
-                </h2>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">Nilai Tugas</h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @forelse ($nilaiTugas as $item)
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                            <div class="flex items-start justify-between mb-4">
-                                <h3 class="text-lg font-bold text-gray-800">
-                                    {{ $item->tugas->judul ?? 'Tugas tidak ditemukan' }}
-                                </h3>
-
-                                <span class="px-3 py-1 rounded-full text-sm font-bold
-                                    {{ $item->nilai >= 75 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                    {{ $item->nilai }}
-                                </span>
-                            </div>
-
-                            <div class="space-y-2 text-sm text-gray-600">
-                                <p>
-                                    <span class="font-semibold">Status:</span>
-                                    {{ $item->status ?? 'Dikumpulkan' }}
-                                </p>
-
-                                <p>
-                                    <span class="font-semibold">Komentar Guru:</span>
-                                    {{ $item->komentar ?? '-' }}
-                                </p>
-
-                                <p>
-                                    <span class="font-semibold">Tanggal Kumpul:</span>
-                                    {{ $item->created_at ? $item->created_at->format('d-m-Y H:i') : '-' }}
-                                </p>
-                            </div>
-
-                            <div class="mt-5">
-                                <a href="{{ route('siswa.tugas.index') }}"
-                                    class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition">
-                                    Lihat Tugas
-                                </a>
-                            </div>
+                    @if ($nilaiTugasData->isEmpty())
+                        <div class="bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-500 shadow-sm">
+                            Belum ada nilai tugas.
                         </div>
-                    @empty
-                        <div class="col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-                            <p class="text-gray-500">
-                                Belum ada nilai tugas.
-                            </p>
+                    @else
+                        <div class="space-y-4">
+                            @foreach ($nilaiTugasData as $item)
+                                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <h3 class="font-extrabold text-slate-800 text-lg">
+                                                {{ $item->tugas->judul ?? 'Tugas' }}
+                                            </h3>
+                                            <p class="text-sm text-slate-500 mt-1">
+                                                Status: {{ ucfirst($item->status ?? '-') }}
+                                            </p>
+                                        </div>
+
+                                        <span class="px-4 py-2 rounded-xl font-extrabold
+                                            {{ ($item->nilai ?? 0) >= 75 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                            {{ $item->nilai ?? '-' }}
+                                        </span>
+                                    </div>
+
+                                    <p class="text-sm text-slate-600 mt-4">
+                                        Komentar: {{ $item->komentar ?? '-' }}
+                                    </p>
+                                </div>
+                            @endforeach
                         </div>
-                    @endforelse
+                    @endif
                 </div>
+
             </div>
 
         </div>

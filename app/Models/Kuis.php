@@ -14,10 +14,21 @@ class Kuis extends Model
         'waktu_mulai',
         'waktu_selesai',
         'guru_id',
+        'kelas_id',
     ];
 
     public function soal()
     {
         return $this->hasMany(SoalKuis::class, 'kuis_id');
+    }
+
+    public function guru()
+    {
+        return $this->belongsTo(User::class, 'guru_id');
+    }
+
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'kelas_id');
     }
 }
