@@ -14,17 +14,23 @@
             <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                     <p class="text-sm text-gray-500">Kegiatan Akademik</p>
-                    <p class="text-3xl font-bold text-blue-700 mt-1">{{ $kalender->count() }}</p>
+                    <p class="text-3xl font-bold text-blue-700 mt-1">
+                        {{ $kalender->count() }}
+                    </p>
                 </div>
 
                 <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                     <p class="text-sm text-gray-500">Libur Nasional API</p>
-                    <p class="text-3xl font-bold text-red-600 mt-1">{{ $liburNasional->count() }}</p>
+                    <p class="text-3xl font-bold text-red-600 mt-1">
+                        {{ $liburNasional->count() }}
+                    </p>
                 </div>
 
                 <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                     <p class="text-sm text-gray-500">Tahun Kalender</p>
-                    <p class="text-3xl font-bold text-gray-800 mt-1">{{ date('Y') }}</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-1">
+                        {{ $tahun ?? date('Y') }}
+                    </p>
                 </div>
             </div>
 
@@ -44,6 +50,7 @@
 
                                     <p class="text-sm text-gray-500 mt-1">
                                         {{ $item->tanggal_mulai ?? $item->tanggal ?? '-' }}
+
                                         @if (!empty($item->tanggal_selesai))
                                             - {{ $item->tanggal_selesai }}
                                         @endif
@@ -68,9 +75,26 @@
             </div>
 
             <div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">
-                    Libur Nasional Otomatis
-                </h2>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            Libur Nasional Otomatis dari API
+                        </h2>
+                        <p class="text-sm text-gray-500 mt-1">
+                            Data ini diambil dari API eksternal api-hari-libur.vercel.app.
+                        </p>
+                    </div>
+
+                    <span class="px-4 py-2 rounded-xl bg-blue-100 text-blue-700 text-sm font-bold">
+                        Tahun {{ $tahun ?? date('Y') }}
+                    </span>
+                </div>
+
+                @if (!empty($apiError))
+                    <div class="mb-5 bg-red-100 border border-red-300 text-red-700 rounded-xl p-4">
+                        {{ $apiError }}
+                    </div>
+                @endif
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @forelse ($liburNasional as $item)
@@ -82,7 +106,7 @@
                                     </h3>
 
                                     <p class="text-sm text-gray-500 mt-1">
-                                        {{ $item['tanggal_mulai'] }}
+                                        {{ \Carbon\Carbon::parse($item['tanggal'])->format('d M Y') }}
                                     </p>
                                 </div>
 
@@ -92,18 +116,12 @@
                             </div>
 
                             <p class="text-gray-600">
-                                {{ $item['deskripsi'] }}
+                                Data hari libur nasional ini diambil otomatis dari API eksternal.
                             </p>
                         </div>
                     @empty
                         <div class="col-span-2 bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-500">
                             Data libur nasional dari API belum tersedia.
-
-@if (!empty($apiError))
-    <div class="mt-3 text-xs text-red-600">
-        Error: {{ $apiError }}
-    </div>
-@endif
                         </div>
                     @endforelse
                 </div>
