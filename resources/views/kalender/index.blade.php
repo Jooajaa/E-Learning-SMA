@@ -11,6 +11,43 @@
                 </p>
             </div>
 
+            @role('admin')
+                <form method="GET"
+                      action="{{ url()->current() }}"
+                      class="mb-6 bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+
+                    <div class="flex flex-col sm:flex-row sm:items-end gap-4">
+                        <div>
+                            <label for="tahun"
+                                   class="block text-sm font-semibold text-gray-700 mb-2">
+                                Pilih Tahun Kalender
+                            </label>
+
+                            <select name="tahun"
+                                    id="tahun"
+                                    class="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+
+                                @for ($i = now()->year - 2; $i <= now()->year + 3; $i++)
+                                    <option value="{{ $i }}"
+                                        @selected((int) $tahun === $i)>
+                                        {{ $i }}
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
+
+                        <button type="submit"
+                                class="px-5 py-2.5 bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-800">
+                            Update Kalender
+                        </button>
+                    </div>
+
+                    <p class="mt-3 text-xs text-gray-500">
+                        Fitur pergantian tahun hanya dapat digunakan oleh Admin.
+                    </p>
+                </form>
+            @endrole
+
             <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
                     <p class="text-sm text-gray-500">Kegiatan Akademik</p>

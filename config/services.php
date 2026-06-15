@@ -13,6 +13,10 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
+    'api_co_id' => [
+        'key' => env('API_CO_ID_KEY'),
+        'url' => env('API_CO_ID_URL', 'https://use.api.co.id'),
+    ],
 
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
