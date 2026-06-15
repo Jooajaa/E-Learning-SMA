@@ -4,24 +4,45 @@ namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Nilai;
-use App\Models\PengumpulanTugas;
+use App\Models\MataPelajaran;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class NilaiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $nilaiKuis = Nilai::with(['kuis', 'guru'])
+        $mataPelajaranId = $request->query('mata_pelajaran_id');
+
+        $mapel = null;
+
+        if ($mataPelajaranId) {
+            $mapel = MataPelajaran::find($mataPelajaranId);
+        }
+
+        $nilaiKuis = Nilai::with(['kuis', 'guru', 'mataPelajaran'])
             ->where('siswa_id', Auth::id())
+            ->whereNotNull('kuis_id')
+            ->when($mataPelajaranId, function ($query) use ($mataPelajaranId) {
+                return $query->where('mata_pelajaran_id', $mataPelajaranId);
+            })
             ->latest()
             ->get();
 
-        $nilaiTugas = PengumpulanTugas::with(['tugas', 'tugas.guru'])
+        $nilaiTugas = Nilai::with(['tugas', 'guru', 'mataPelajaran'])
             ->where('siswa_id', Auth::id())
-            ->whereNotNull('nilai')
+            ->whereNotNull('tugas_id')
+            ->when($mataPelajaranId, function ($query) use ($mataPelajaranId) {
+                return $query->where('mata_pelajaran_id', $mataPelajaranId);
+            })
             ->latest()
             ->get();
 
-        return view('siswa.nilai.index', compact('nilaiKuis', 'nilaiTugas'));
+        return view('siswa.nilai.index', compact(
+            'nilaiKuis',
+            'nilaiTugas',
+            'mataPelajaranId',
+            'mapel'
+        ));
     }
 }

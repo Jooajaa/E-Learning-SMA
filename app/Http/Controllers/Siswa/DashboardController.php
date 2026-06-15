@@ -9,11 +9,20 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $user = Auth::user()->load([
-            'siswaKelas.kelas.guruKelas.guru',
-            'siswaKelas.kelas.guruKelas.mataPelajaran',
-        ]);
+        $user = Auth::user()->load('siswaKelas.kelas.guruKelas.mataPelajaran');
 
-        return view('siswa.dashboard', compact('user'));
+        $kelas = $user->siswaKelas->kelas ?? null;
+
+        $mapel = collect();
+
+        if ($kelas) {
+            $mapel = $kelas->guruKelas
+                ->pluck('mataPelajaran')
+                ->filter()
+                ->unique('id')
+                ->values();
+        }
+
+        return view('siswa.dashboard', compact('kelas', 'mapel'));
     }
 }

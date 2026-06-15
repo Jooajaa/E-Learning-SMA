@@ -25,6 +25,7 @@ use App\Http\Controllers\Guru\SoalKuisController as GuruSoalKuisController;
 use App\Http\Controllers\Guru\MateriController as GuruMateriController;
 use App\Http\Controllers\Guru\TugasController as GuruTugasController;
 use App\Http\Controllers\Guru\PengumpulanTugasController as GuruPengumpulanTugasController;
+use App\Http\Controllers\Guru\MapelController as GuruMapelController;
 
 use App\Http\Controllers\Siswa\DashboardController as SiswaDashboard;
 use App\Http\Controllers\Siswa\KuisController as SiswaKuisController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\Siswa\JadwalController as SiswaJadwalController;
 use App\Http\Controllers\Siswa\MateriController as SiswaMateriController;
 use App\Http\Controllers\Siswa\TugasController as SiswaTugasController;
 use App\Http\Controllers\Siswa\PengumpulanTugasController as SiswaPengumpulanTugasController;
+use App\Http\Controllers\Siswa\MapelController as SiswaMapelController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -41,7 +43,6 @@ Route::get('/', function () {
 
 require __DIR__ . '/auth.php';
 
-// Redirect dashboard sesuai role
 Route::get('/dashboard', function () {
     $user = Auth::user();
 
@@ -60,12 +61,12 @@ Route::get('/dashboard', function () {
     return redirect('/');
 })->middleware(['auth'])->name('dashboard');
 
-// Profile Routes
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
 
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])
@@ -91,9 +92,9 @@ Route::middleware(['auth', 'role:admin'])
         Route::post('/import/siswa', [ImportController::class, 'importSiswa'])->name('import.siswa');
         Route::post('/import/guru', [ImportController::class, 'importGuru'])->name('import.guru');
 
-        // Jadwal Pelajaran
         Route::resource('jadwal', AdminJadwalController::class);
     });
+
 
 // Guru Routes
 Route::middleware(['auth', 'role:guru'])
@@ -102,7 +103,12 @@ Route::middleware(['auth', 'role:guru'])
     ->group(function () {
         Route::get('/dashboard', [GuruDashboard::class, 'index'])->name('dashboard');
 
-        // Fitur Ahlil - Evaluasi
+        Route::get('/mapel', [GuruMapelController::class, 'index'])->name('mapel.index');
+        Route::get('/mapel/{guruKelas}', [GuruMapelController::class, 'show'])->name('mapel.show');
+        Route::get('/mapel/{guruKelas}/materi', [GuruMapelController::class, 'materi'])->name('mapel.materi');
+        Route::get('/mapel/{guruKelas}/tugas', [GuruMapelController::class, 'tugas'])->name('mapel.tugas');
+        Route::get('/mapel/{guruKelas}/kuis', [GuruMapelController::class, 'kuis'])->name('mapel.kuis');
+
         Route::get('/kuis', [GuruKuisController::class, 'index'])->name('kuis.index');
         Route::get('/kuis/create', [GuruKuisController::class, 'create'])->name('kuis.create');
         Route::post('/kuis', [GuruKuisController::class, 'store'])->name('kuis.store');
@@ -115,7 +121,6 @@ Route::middleware(['auth', 'role:guru'])
         Route::get('/absensi', [GuruAbsensiController::class, 'index'])->name('absensi.index');
         Route::get('/jadwal', [GuruJadwalController::class, 'index'])->name('jadwal.index');
 
-        // Fitur Fuad - Pembelajaran
         Route::get('/materi', [GuruMateriController::class, 'index'])->name('materi.index');
         Route::get('/materi/create', [GuruMateriController::class, 'create'])->name('materi.create');
         Route::post('/materi', [GuruMateriController::class, 'store'])->name('materi.store');
@@ -136,6 +141,7 @@ Route::middleware(['auth', 'role:guru'])
         Route::put('/pengumpulan/{pengumpulan}/nilai', [GuruPengumpulanTugasController::class, 'beriNilai'])->name('pengumpulan.nilai');
     });
 
+
 // Siswa Routes
 Route::middleware(['auth', 'role:siswa'])
     ->prefix('siswa')
@@ -143,17 +149,23 @@ Route::middleware(['auth', 'role:siswa'])
     ->group(function () {
         Route::get('/dashboard', [SiswaDashboard::class, 'index'])->name('dashboard');
 
-        // Fitur Ahlil - Evaluasi
+        Route::get('/mapel', [SiswaMapelController::class, 'index'])->name('mapel.index');
+        Route::get('/mapel/{mapel}', [SiswaMapelController::class, 'show'])->name('mapel.show');
+        Route::get('/mapel/{mapel}/materi', [SiswaMapelController::class, 'materi'])->name('mapel.materi');
+        Route::get('/mapel/{mapel}/tugas', [SiswaMapelController::class, 'tugas'])->name('mapel.tugas');
+        Route::get('/mapel/{mapel}/kuis', [SiswaMapelController::class, 'kuis'])->name('mapel.kuis');
+
         Route::get('/kuis', [SiswaKuisController::class, 'index'])->name('kuis.index');
         Route::get('/kuis/{kuis}/kerjakan', [SiswaKuisController::class, 'kerjakan'])->name('kuis.kerjakan');
         Route::post('/kuis/{kuis}/submit', [SiswaKuisController::class, 'submit'])->name('kuis.submit');
 
         Route::get('/nilai', [SiswaNilaiController::class, 'index'])->name('nilai.index');
+
         Route::get('/absensi', [SiswaAbsensiController::class, 'index'])->name('absensi.index');
         Route::post('/absensi', [SiswaAbsensiController::class, 'store'])->name('absensi.store');
+
         Route::get('/jadwal', [SiswaJadwalController::class, 'index'])->name('jadwal.index');
 
-        // Fitur Fuad - Pembelajaran
         Route::get('/materi', [SiswaMateriController::class, 'index'])->name('materi.index');
         Route::get('/materi/{materi}', [SiswaMateriController::class, 'show'])->name('materi.show');
 
@@ -163,6 +175,7 @@ Route::middleware(['auth', 'role:siswa'])
         Route::get('/pengumpulan', [SiswaPengumpulanTugasController::class, 'index'])->name('pengumpulan.index');
         Route::post('/pengumpulan', [SiswaPengumpulanTugasController::class, 'store'])->name('pengumpulan.store');
     });
+
 
 // Kalender Akademik
 Route::middleware(['auth'])->group(function () {

@@ -31,4 +31,8 @@ class Tugas extends Model
     {
         return $this->hasMany(PengumpulanTugas::class);
     }
+    public function mataPelajaran()
+    {
+        return $this->belongsTo(MataPelajaran::class, 'mata_pelajaran_id');
+    }
 }

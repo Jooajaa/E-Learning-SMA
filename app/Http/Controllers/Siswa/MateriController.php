@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Materi;
 use Illuminate\Support\Facades\Auth;
 
+
 class MateriController extends Controller
 {
     public function index()

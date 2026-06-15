@@ -1,17 +1,21 @@
 <x-app-layout>
     <div class="min-h-screen bg-slate-100">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-            <div class="mb-6">
-                <h1 class="text-3xl font-extrabold text-slate-800">Tambah Materi</h1>
-                <p class="text-slate-500 mt-1">
-                    Upload materi pembelajaran untuk kelas tertentu.
+            <div class="mb-8">
+                <h1 class="text-3xl font-extrabold text-slate-800">
+                    Tambah Materi
+                </h1>
+                <p class="text-slate-500 mt-2">
+                    Upload materi pembelajaran berdasarkan kelas dan mata pelajaran yang sedang dipilih.
                 </p>
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+
                 @if ($errors->any())
                     <div class="mb-6 p-4 bg-red-100 border border-red-300 text-red-700 rounded-2xl">
+                        <p class="font-bold mb-2">Terjadi kesalahan:</p>
                         <ul class="list-disc list-inside">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -20,75 +24,158 @@
                     </div>
                 @endif
 
-                @if ($kelas->isEmpty())
-                    <div class="mb-6 p-4 bg-yellow-100 border border-yellow-300 text-yellow-700 rounded-2xl">
-                        Kamu belum ditugaskan mengajar kelas mana pun. Hubungi admin untuk mengatur penugasan.
+                @if (isset($guruKelasTerpilih) && $guruKelasTerpilih)
+                    <div class="mb-6 bg-blue-50 border border-blue-200 rounded-2xl p-5">
+                        <p class="text-sm text-blue-600 font-semibold">
+                            Materi untuk
+                        </p>
+
+                        <h2 class="text-xl font-extrabold text-slate-800 mt-1">
+                            {{ $guruKelasTerpilih->kelas->nama_kelas ?? '-' }}
+                            -
+                            {{ $guruKelasTerpilih->mataPelajaran->nama_mapel ?? '-' }}
+                        </h2>
+
+                        <p class="text-sm text-slate-500 mt-2">
+                            Kelas dan mata pelajaran sudah otomatis dipilih dari ruang mengajar.
+                        </p>
+                    </div>
+                @else
+                    <div class="mb-6 bg-yellow-50 border border-yellow-200 rounded-2xl p-5">
+                        <p class="text-sm text-yellow-700 font-semibold">
+                            Pilih kelas dan mata pelajaran
+                        </p>
+                        <p class="text-sm text-slate-500 mt-1">
+                            Karena halaman ini tidak dibuka dari ruang mengajar, kamu perlu memilih kelas dan mata pelajaran terlebih dahulu.
+                        </p>
                     </div>
                 @endif
 
                 <form action="{{ route('guru.materi.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
                     @csrf
 
+                    @if (isset($guruKelasTerpilih) && $guruKelasTerpilih)
+                        <input type="hidden" name="guru_kelas_id" value="{{ $guruKelasTerpilih->id }}">
+                        <input type="hidden" name="kelas_id" value="{{ $guruKelasTerpilih->kelas_id }}">
+                        <input type="hidden" name="mata_pelajaran_id" value="{{ $guruKelasTerpilih->mata_pelajaran_id }}">
+                    @else
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                Kelas dan Mata Pelajaran
+                            </label>
+
+                            <select name="penugasan" required onchange="isiKelasMapel(this)"
+                                class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+
+                                <option value="">-- Pilih Kelas dan Mata Pelajaran --</option>
+
+                                @foreach ($guruKelas as $item)
+                                    <option value="{{ $item->kelas_id }}|{{ $item->mata_pelajaran_id }}">
+                                        {{ $item->kelas->nama_kelas ?? '-' }}
+                                        -
+                                        {{ $item->mataPelajaran->nama_mapel ?? '-' }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            <input type="hidden" name="kelas_id" id="kelas_id" value="{{ old('kelas_id') }}">
+                            <input type="hidden" name="mata_pelajaran_id" id="mata_pelajaran_id" value="{{ old('mata_pelajaran_id') }}">
+
+                            @error('kelas_id')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+
+                            @error('mata_pelajaran_id')
+                                <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    @endif
+
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Kelas</label>
-                        <select name="kelas_id" required
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                            Judul Materi
+                        </label>
+
+                        <input type="text" name="judul" value="{{ old('judul') }}" required
+                            placeholder="Contoh: Materi Biologi Bab 1"
                             class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <option value="">-- Pilih Kelas --</option>
-                            @foreach ($kelas as $item)
-                                <option value="{{ $item->id }}" {{ old('kelas_id') == $item->id ? 'selected' : '' }}>
-                                    {{ $item->nama_kelas }}
-                                </option>
-                            @endforeach
-                        </select>
+
+                        @error('judul')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Judul Materi</label>
-                        <input type="text" name="judul" value="{{ old('judul') }}"
-                            placeholder="Contoh: Struktur Sel dan Fungsinya"
-                            class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            required>
-                    </div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                            Deskripsi Materi
+                        </label>
 
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Deskripsi</label>
                         <textarea name="deskripsi" rows="5"
-                            placeholder="Tulis ringkasan materi agar siswa memahami isi file"
+                            placeholder="Tuliskan deskripsi singkat materi"
                             class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('deskripsi') }}</textarea>
+
+                        @error('deskripsi')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">File Materi</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">
+                            File Materi
+                        </label>
+
                         <input type="file" name="file"
-                            class="block w-full text-sm text-slate-700 border border-slate-300 rounded-xl cursor-pointer bg-white p-3">
-                        <p class="text-xs text-slate-500 mt-2">
-                            File dapat berupa PDF, DOCX, PPT, atau gambar. Maksimal 5MB.
+                            class="w-full rounded-xl border border-slate-300 bg-white p-3">
+
+                        <p class="text-sm text-slate-500 mt-2">
+                            Upload file materi seperti PDF, DOCX, PPT, atau gambar. Maksimal 5MB.
                         </p>
+
+                        @error('file')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Status Materi</label>
-                        <select name="is_active"
-                            class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <option value="1" {{ old('is_active', '1') == '1' ? 'selected' : '' }}>Aktif</option>
-                            <option value="0" {{ old('is_active') == '0' ? 'selected' : '' }}>Nonaktif</option>
-                        </select>
-                    </div>
+                    <input type="hidden" name="is_active" value="1">
 
-                    <div class="flex flex-wrap gap-3 pt-2">
+                    <div class="flex items-center gap-3 pt-4">
                         <button type="submit"
                             class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition">
                             Upload Materi
                         </button>
 
-                        <a href="{{ route('guru.materi.index') }}"
-                            class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3 rounded-xl transition">
-                            Batal
-                        </a>
+                        @if (isset($guruKelasTerpilih) && $guruKelasTerpilih)
+                            <a href="{{ route('guru.mapel.materi', $guruKelasTerpilih->id) }}"
+                                class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3 rounded-xl transition">
+                                Batal
+                            </a>
+                        @else
+                            <a href="{{ route('guru.materi.index') }}"
+                                class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-6 py-3 rounded-xl transition">
+                                Batal
+                            </a>
+                        @endif
                     </div>
                 </form>
             </div>
 
         </div>
     </div>
+
+    <script>
+        function isiKelasMapel(select) {
+            const value = select.value;
+
+            if (!value) {
+                document.getElementById('kelas_id').value = '';
+                document.getElementById('mata_pelajaran_id').value = '';
+                return;
+            }
+
+            const data = value.split('|');
+
+            document.getElementById('kelas_id').value = data[0];
+            document.getElementById('mata_pelajaran_id').value = data[1];
+        }
+    </script>
 </x-app-layout>
