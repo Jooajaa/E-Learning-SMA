@@ -178,6 +178,19 @@ Route::middleware(['auth', 'role:siswa'])
 
 
 // Kalender Akademik
+
 Route::middleware(['auth'])->group(function () {
-    Route::get('/kalender', [KalenderAkademikController::class, 'index'])->name('kalender.index');
+    Route::get('/kalender', [KalenderAkademikController::class, 'index'])
+        ->name('kalender.index');
+});
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::post('/kalender', [KalenderAkademikController::class, 'store'])
+        ->name('kalender.store');
+
+    Route::put('/kalender/{kalender}', [KalenderAkademikController::class, 'update'])
+        ->name('kalender.update');
+
+    Route::delete('/kalender/{kalender}', [KalenderAkademikController::class, 'destroy'])
+        ->name('kalender.destroy');
 });
