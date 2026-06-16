@@ -12,9 +12,10 @@ class PengumpulanTugas extends Model
         'tugas_id',
         'siswa_id',
         'file',
-        'status',
+        'komentar_siswa',
+        'komentar_guru',
         'nilai',
-        'komentar',
+        'status',
     ];
 
     public function tugas()

@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Materi extends Model
 {
-    protected $table = 'materi';
+    protected $table = 'materi';  
 
     protected $fillable = [
         'guru_id',
         'kelas_id',
+        'mata_pelajaran_id',
         'judul',
         'deskripsi',
         'file',
@@ -27,6 +28,7 @@ class Materi extends Model
     {
         return $this->belongsTo(Kelas::class, 'kelas_id');
     }
+
     public function mataPelajaran()
     {
         return $this->belongsTo(MataPelajaran::class, 'mata_pelajaran_id');

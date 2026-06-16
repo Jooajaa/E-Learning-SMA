@@ -2,6 +2,7 @@
     <div class="min-h-screen bg-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+            {{-- HEADER --}}
             <div class="bg-gradient-to-r from-purple-700 to-slate-900 rounded-3xl p-8 text-white shadow-lg mb-8">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
                     <div>
@@ -18,7 +19,7 @@
                         </p>
 
                         @if (isset($guruKelas) && $guruKelas)
-                            <div class="mt-5 inline-flex items-center gap-2 bg-white/15 border border-white/20 px-4 py-2 rounded-xl">
+                            <div class="mt-5 inline-flex flex-wrap items-center gap-2 bg-white/15 border border-white/20 px-4 py-2 rounded-xl">
                                 <span class="text-purple-100 text-sm">Kelas:</span>
                                 <span class="font-bold">
                                     {{ $guruKelas->kelas->nama_kelas ?? '-' }}
@@ -48,11 +49,17 @@
                                class="bg-white/15 hover:bg-white/25 border border-white/20 text-white font-bold px-5 py-3 rounded-xl transition">
                                 Kembali
                             </a>
+                        @else
+                            <a href="{{ route('guru.dashboard') }}"
+                               class="bg-white/15 hover:bg-white/25 border border-white/20 text-white font-bold px-5 py-3 rounded-xl transition">
+                                Kembali
+                            </a>
                         @endif
                     </div>
                 </div>
             </div>
 
+            {{-- ALERT --}}
             @if (session('success'))
                 <div class="mb-6 p-4 bg-green-100 border border-green-300 text-green-700 rounded-2xl">
                     {{ session('success') }}
@@ -77,6 +84,7 @@
                 </div>
             @endif
 
+            {{-- LIST PENGUMPULAN --}}
             @if (!isset($pengumpulan) || $pengumpulan->isEmpty())
                 <div class="bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-500 shadow-sm">
                     Belum ada pengumpulan tugas untuk kelas dan mata pelajaran ini.
@@ -84,8 +92,13 @@
             @else
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     @foreach ($pengumpulan as $item)
+                        @php
+                            $status = strtolower($item->status ?? 'dikumpulkan');
+                        @endphp
+
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
 
+                            {{-- BAGIAN ATAS CARD --}}
                             <div class="flex items-start justify-between gap-4 mb-5">
                                 <div>
                                     <p class="text-sm text-slate-500">
@@ -111,10 +124,6 @@
                                     </p>
                                 </div>
 
-                                @php
-                                    $status = strtolower($item->status ?? 'dikumpulkan');
-                                @endphp
-
                                 @if ($status == 'dinilai')
                                     <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold">
                                         Dinilai
@@ -126,6 +135,7 @@
                                 @endif
                             </div>
 
+                            {{-- INFORMASI --}}
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
                                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
                                     <p class="text-sm text-slate-500">
@@ -148,7 +158,8 @@
                                 </div>
                             </div>
 
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-5">
+                            {{-- KOMENTAR SISWA --}}
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-4">
                                 <p class="text-sm text-slate-500">
                                     Komentar Siswa
                                 </p>
@@ -158,14 +169,42 @@
                                 </p>
                             </div>
 
+                            {{-- KOMENTAR GURU --}}
+                            <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 mb-5">
+                                <p class="text-sm text-purple-600">
+                                    Komentar Guru
+                                </p>
+
+                                <p class="font-semibold text-slate-800 mt-1">
+                                    {{ $item->komentar_guru ?? 'Belum ada komentar guru.' }}
+                                </p>
+                            </div>
+
+                            {{-- NILAI --}}
+                            <div class="bg-green-50 border border-green-200 rounded-xl p-3 mb-5">
+                                <p class="text-sm text-green-600">
+                                    Nilai
+                                </p>
+
+                                <p class="font-extrabold text-slate-800 mt-1 text-xl">
+                                    {{ $item->nilai ?? 'Belum dinilai' }}
+                                </p>
+                            </div>
+
+                            {{-- FILE JAWABAN --}}
                             @if ($item->file)
                                 <a href="{{ asset('storage/' . $item->file) }}"
                                    target="_blank"
                                    class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-3 rounded-xl transition mb-5">
                                     Lihat / Download Jawaban
                                 </a>
+                            @else
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-500 mb-5">
+                                    Tidak ada file jawaban.
+                                </div>
                             @endif
 
+                            {{-- FORM NILAI --}}
                             <form action="{{ route('guru.pengumpulan.nilai', $item->id) }}" method="POST" class="space-y-4">
                                 @csrf
                                 @method('PUT')
@@ -179,7 +218,10 @@
                                         Nilai
                                     </label>
 
-                                    <input type="number" name="nilai" min="0" max="100"
+                                    <input type="number"
+                                           name="nilai"
+                                           min="0"
+                                           max="100"
                                            value="{{ old('nilai', $item->nilai) }}"
                                            placeholder="Contoh: 90"
                                            class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
@@ -190,14 +232,15 @@
                                         Komentar Guru
                                     </label>
 
-                                    <textarea name="komentar_guru" rows="4"
+                                    <textarea name="komentar_guru"
+                                              rows="4"
                                               placeholder="Tulis komentar penilaian"
                                               class="w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('komentar_guru', $item->komentar_guru) }}</textarea>
                                 </div>
 
                                 <button type="submit"
                                         class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold px-5 py-3 rounded-xl transition">
-                                    Simpan Nilai
+                                    Simpan Nilai dan Komentar
                                 </button>
                             </form>
 

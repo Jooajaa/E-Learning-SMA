@@ -7,6 +7,7 @@ use App\Models\MataPelajaran;
 use App\Models\Materi;
 use App\Models\Tugas;
 use App\Models\Kuis;
+use App\Models\Nilai;
 use App\Models\PengumpulanTugas;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,29 +15,32 @@ class MapelController extends Controller
 {
     public function index()
     {
-        $user = Auth::user()->load('siswaKelas.kelas.guruKelas.mataPelajaran');
+        $user = Auth::user()->load('siswaKelas.kelas.guruKelas.mataPelajaran', 'siswaKelas.kelas.guruKelas.guru');
 
         $kelas = $user->siswaKelas->kelas ?? null;
 
-        if (!$kelas) {
-            return view('siswa.mapel.index', [
-                'mapel' => collect(),
-                'kelas' => null,
-            ]);
+        $mapel = collect();
+
+        if ($kelas) {
+            $mapel = $kelas->guruKelas
+                ->filter(function ($item) {
+                    return $item->mataPelajaran !== null;
+                })
+                ->map(function ($item) {
+                    $mataPelajaran = $item->mataPelajaran;
+                    $mataPelajaran->guru_name = $item->guru->name ?? '-';
+                    return $mataPelajaran;
+                })
+                ->unique('id')
+                ->values();
         }
 
-        $mapel = $kelas->guruKelas
-            ->pluck('mataPelajaran')
-            ->filter()
-            ->unique('id')
-            ->values();
-
-        return view('siswa.mapel.index', compact('mapel', 'kelas'));
+        return view('siswa.mapel.index', compact('kelas', 'mapel'));
     }
 
-    public function show(MataPelajaran $mapel)
+    public function show($mapel)
     {
-        $user = Auth::user()->load('siswaKelas.kelas.guruKelas.mataPelajaran');
+        $user = Auth::user()->load('siswaKelas.kelas');
 
         $kelas = $user->siswaKelas->kelas ?? null;
 
@@ -44,16 +48,11 @@ class MapelController extends Controller
             abort(403, 'Kamu belum memiliki kelas.');
         }
 
-        $bolehAkses = $kelas->guruKelas
-            ->where('mata_pelajaran_id', $mapel->id)
-            ->count() > 0;
-
-        if (!$bolehAkses) {
-            abort(403, 'Kamu tidak memiliki akses ke mata pelajaran ini.');
-        }
+        $mapel = MataPelajaran::findOrFail($mapel);
 
         $materiCount = Materi::where('kelas_id', $kelas->id)
             ->where('mata_pelajaran_id', $mapel->id)
+            ->where('is_active', 1)
             ->count();
 
         $tugasCount = Tugas::where('kelas_id', $kelas->id)
@@ -65,41 +64,53 @@ class MapelController extends Controller
             ->count();
 
         return view('siswa.mapel.show', compact(
-            'mapel',
             'kelas',
+            'mapel',
             'materiCount',
             'tugasCount',
             'kuisCount'
         ));
     }
 
-    public function materi(MataPelajaran $mapel)
+    public function materi($mapel)
     {
-        $kelas = Auth::user()->siswaKelas->kelas ?? null;
+        $user = Auth::user()->load('siswaKelas.kelas');
+
+        $kelas = $user->siswaKelas->kelas ?? null;
 
         if (!$kelas) {
             abort(403, 'Kamu belum memiliki kelas.');
         }
+
+        $mapel = MataPelajaran::findOrFail($mapel);
 
         $materi = Materi::with(['guru', 'kelas', 'mataPelajaran'])
             ->where('kelas_id', $kelas->id)
             ->where('mata_pelajaran_id', $mapel->id)
-            ->where('is_active', true)
+            ->where('is_active', 1)
             ->latest()
             ->get();
 
-        return view('siswa.mapel.materi', compact('materi', 'mapel', 'kelas'));
+        return view('siswa.mapel.materi', compact(
+            'kelas',
+            'mapel',
+            'materi'
+        ));
     }
 
-    public function tugas(MataPelajaran $mapel)
+    public function tugas($mapel)
     {
-        $kelas = Auth::user()->siswaKelas->kelas ?? null;
+        $user = Auth::user()->load('siswaKelas.kelas');
+
+        $kelas = $user->siswaKelas->kelas ?? null;
 
         if (!$kelas) {
             abort(403, 'Kamu belum memiliki kelas.');
         }
 
-        $tugas = Tugas::with(['guru', 'kelas', 'mataPelajaran', 'pengumpulan'])
+        $mapel = MataPelajaran::findOrFail($mapel);
+
+        $tugas = Tugas::with(['guru', 'kelas', 'mataPelajaran'])
             ->where('kelas_id', $kelas->id)
             ->where('mata_pelajaran_id', $mapel->id)
             ->latest()
@@ -109,21 +120,28 @@ class MapelController extends Controller
             ->get()
             ->keyBy('tugas_id');
 
-        return view('siswa.mapel.tugas', compact(
+        $mataPelajaranId = $mapel->id;
+
+        return view('siswa.tugas.index', compact(
+            'kelas',
+            'mapel',
             'tugas',
             'pengumpulanTugas',
-            'mapel',
-            'kelas'
+            'mataPelajaranId'
         ));
     }
 
-    public function kuis(MataPelajaran $mapel)
+    public function kuis($mapel)
     {
-        $kelas = Auth::user()->siswaKelas->kelas ?? null;
+        $user = Auth::user()->load('siswaKelas.kelas');
+
+        $kelas = $user->siswaKelas->kelas ?? null;
 
         if (!$kelas) {
             abort(403, 'Kamu belum memiliki kelas.');
         }
+
+        $mapel = MataPelajaran::findOrFail($mapel);
 
         $kuis = Kuis::with(['guru', 'kelas', 'mataPelajaran', 'soal'])
             ->where('kelas_id', $kelas->id)
@@ -131,13 +149,19 @@ class MapelController extends Controller
             ->latest()
             ->get();
 
-        $kuisSudahDikerjakan = [];
+        $kuisSudahDikerjakan = Nilai::where('siswa_id', Auth::id())
+            ->whereNotNull('kuis_id')
+            ->pluck('kuis_id')
+            ->toArray();
+
+        $mataPelajaranId = $mapel->id;
 
         return view('siswa.mapel.kuis', compact(
+            'kelas',
+            'mapel',
             'kuis',
             'kuisSudahDikerjakan',
-            'mapel',
-            'kelas'
+            'mataPelajaranId'
         ));
     }
 }
